@@ -1,0 +1,18 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html>
+	<head>
+		<title>404 Not Found</title>
+	</head>
+	<body>
+		<div style="text-align: center;">
+			<img src="/images/logo.png" style="width: 500px; max-width: 100%; border: 0px;" alt="CoinPayments.net Logo">
+			<h1>404 - File Not Found</h1>
+			<h2>The requested URL was not found on this server.</h2>
+			<br />
+			<h3>
+				Maybe this file existed before,<br />
+				But it doesn't anymore.
+			</h3>
+		</div>
+	</body>
+</html>

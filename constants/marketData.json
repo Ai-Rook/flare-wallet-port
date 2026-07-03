@@ -1,0 +1,182 @@
+{
+  "bitcoin": {
+    "price": 59481.77,
+    "change24h": 0.93,
+    "change7d": 5.4,
+    "marketCap": 1190000000000,
+    "circulating": "20.05M",
+    "volume24h": 30670000000,
+    "rank": 1,
+    "dominance": 52.1
+  },
+  "ethereum": {
+    "price": 1591.27,
+    "change24h": 0.68,
+    "change7d": 5.85,
+    "marketCap": 191910000000,
+    "circulating": "120.68M",
+    "volume24h": 11390000000,
+    "rank": 2,
+    "dominance": 8.4
+  },
+  "tether": {
+    "price": 0.9984,
+    "change24h": 0.0,
+    "change7d": 0.04,
+    "marketCap": 184700000000,
+    "circulating": "184.99B",
+    "volume24h": 67690000000,
+    "rank": 3,
+    "dominance": 0
+  },
+  "usd-coin": {
+    "price": 0.9996,
+    "change24h": 0.01,
+    "change7d": 0.0,
+    "marketCap": 73590000000,
+    "circulating": "73.61B",
+    "volume24h": 13460000000,
+    "rank": 5,
+    "dominance": 0
+  },
+  "bnb": {
+    "price": 552.57,
+    "change24h": 0.01,
+    "change7d": 4.77,
+    "marketCap": 74460000000,
+    "circulating": "134.78M",
+    "volume24h": 1080000000,
+    "rank": 4,
+    "dominance": 3.3
+  },
+  "solana": {
+    "price": 127.42,
+    "change24h": 1.24,
+    "change7d": 8.32,
+    "marketCap": 59200000000,
+    "circulating": "465M",
+    "volume24h": 2800000000,
+    "rank": 6,
+    "dominance": 2.6
+  },
+  "ripple": {
+    "price": 1.0,
+    "change24h": 0.47,
+    "change7d": 3.21,
+    "marketCap": 58000000000,
+    "circulating": "58B",
+    "volume24h": 1900000000,
+    "rank": 7,
+    "dominance": 0
+  },
+  "cardano": {
+    "price": 0.42,
+    "change24h": 0.89,
+    "change7d": 4.12,
+    "marketCap": 15000000000,
+    "circulating": "35.8B",
+    "volume24h": 420000000,
+    "rank": 10,
+    "dominance": 0.7
+  },
+  "dogecoin": {
+    "price": 0.0821,
+    "change24h": 1.55,
+    "change7d": 6.78,
+    "marketCap": 11800000000,
+    "circulating": "144B",
+    "volume24h": 890000000,
+    "rank": 9,
+    "dominance": 0.5
+  },
+  "polkadot": {
+    "price": 3.82,
+    "change24h": 0.52,
+    "change7d": 2.91,
+    "marketCap": 5300000000,
+    "circulating": "1.39B",
+    "volume24h": 180000000,
+    "rank": 16,
+    "dominance": 0.2
+  },
+  "chainlink": {
+    "price": 8.47,
+    "change24h": 0.73,
+    "change7d": 4.55,
+    "marketCap": 5200000000,
+    "circulating": "614M",
+    "volume24h": 320000000,
+    "rank": 17,
+    "dominance": 0.2
+  },
+  "litecoin": {
+    "price": 64.32,
+    "change24h": 0.31,
+    "change7d": 3.87,
+    "marketCap": 4800000000,
+    "circulating": "74M",
+    "volume24h": 380000000,
+    "rank": 18,
+    "dominance": 0.2
+  },
+  "avalanche": {
+    "price": 8.93,
+    "change24h": 1.12,
+    "change7d": 5.67,
+    "marketCap": 3700000000,
+    "circulating": "414M",
+    "volume24h": 290000000,
+    "rank": 20,
+    "dominance": 0.2
+  },
+  "shiba-inu": {
+    "price": 8.72e-06,
+    "change24h": 2.34,
+    "change7d": 9.11,
+    "marketCap": 5100000000,
+    "circulating": "589T",
+    "volume24h": 620000000,
+    "rank": 14,
+    "dominance": 0.2
+  },
+  "polygon": {
+    "price": 0.217,
+    "change24h": 0.64,
+    "change7d": 3.45,
+    "marketCap": 2100000000,
+    "circulating": "10B",
+    "volume24h": 150000000,
+    "rank": 28,
+    "dominance": 0.1
+  },
+  "cosmos": {
+    "price": 2.97,
+    "change24h": 0.55,
+    "change7d": 2.33,
+    "marketCap": 1100000000,
+    "circulating": "390M",
+    "volume24h": 82000000,
+    "rank": 45,
+    "dominance": 0
+  },
+  "bitcoin-cash": {
+    "price": 321.47,
+    "change24h": 0.42,
+    "change7d": 3.12,
+    "marketCap": 6300000000,
+    "circulating": "19.7M",
+    "volume24h": 210000000,
+    "rank": 22,
+    "dominance": 0.3
+  },
+  "stellar": {
+    "price": 0.0642,
+    "change24h": 0.38,
+    "change7d": 2.78,
+    "marketCap": 1900000000,
+    "circulating": "30B",
+    "volume24h": 78000000,
+    "rank": 35,
+    "dominance": 0.1
+  }
+}

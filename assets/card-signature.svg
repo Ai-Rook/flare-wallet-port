@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250" width="400" height="250">
+  <defs>
+    <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3A4550"/>
+      <stop offset="100%" style="stop-color:#5B6771"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="250" rx="20" fill="url(#sg)"/>
+  <text x="30" y="45" font-family="system-ui,sans-serif" font-size="18" font-weight="600" fill="white" opacity="0.9">COINPAYMENTS</text>
+  <text x="30" y="68" font-family="system-ui,sans-serif" font-size="12" fill="white" opacity="0.6">Signature™</text>
+  <circle cx="350" cy="40" r="22" fill="rgba(255,255,255,0.15)"/>
+  <circle cx="370" cy="40" r="22" fill="rgba(255,255,255,0.1)"/>
+  <rect x="30" y="200" width="50" height="35" rx="4" fill="rgba(255,255,255,0.25)"/>
+  <text x="100" y="225" font-family="system-ui,sans-serif" font-size="14" fill="white" opacity="0.7">•••• •••• •••• 8888</text>
+  <text x="30" y="165" font-family="system-ui,sans-serif" font-size="14" fill="white" opacity="0.8">BRYAN D</text>
+  <text x="300" y="165" font-family="system-ui,sans-serif" font-size="12" fill="white" opacity="0.6">12/28</text>
+</svg>
