@@ -28,7 +28,7 @@ const TOKEN_ICONS = {
 const DEFAULT_ICON = require('../assets/tokens/btc.png');
 
 /**
- * PortfolioHero — CoinPayments card with crypto coin icon casting shadow
+ * PortfolioHero — Flare card with crypto coin icon casting shadow
  *
  * Layout:
  *   Left: price + change + holdings
@@ -76,7 +76,7 @@ export default function PortfolioHero({ symbol, price, change24h, holdings, fiat
           end={{ x: 1, y: 1 }}
         >
           <View style={styles.cardTop}>
-            <Text style={styles.cardBrand}>CoinPayments</Text>
+            <Text style={styles.cardBrand}>Flare</Text>
             <Text style={styles.cardType}>DEBIT</Text>
           </View>
           <View style={styles.chipRow}>

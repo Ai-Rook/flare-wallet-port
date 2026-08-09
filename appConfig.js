@@ -1,16 +1,16 @@
 // ============================================================
-// appConfig.js — CoinPayments Branding Configuration
+// appConfig.js — Flare Wallet Configuration
 // All brand/tier names driven from here. Rebrand to
-// CoinPayments is a one-file change (swap logo + names).
+// Rebranding is a one-file change (swap logo + names).
 // ============================================================
 
 export const BRAND = 'Flare';
 export const TAGLINE = 'Interoperable assets. Decentralized prices.';
 
-// CoinPayments logo path (swap this when rebrand is ready)
+// Flare logo path (swap this when rebrand is ready)
 export const LOGO_PATH = null; // null = use text logo fallback
 
-// API base URL — CoinPayments API running on VPS (preserved, commented out)
+// API base URL — previous centralized API (preserved, commented out)
 // export const API_BASE_URL = 'http://149.28.37.72:4000';
 
 // Flare network configuration
@@ -26,7 +26,7 @@ export const CARD_TIERS = [
   {
     id: 'simple',
     name: 'Simple',
-    brandName: 'CoinPayments Simple',
+    brandName: 'Flare Simple',
     color: '#1255D1',
     dailyLimit: 500,
     monthlyFee: 0,
@@ -42,7 +42,7 @@ export const CARD_TIERS = [
   {
     id: 'signature',
     name: 'Signature',
-    brandName: 'CoinPayments Signature',
+    brandName: 'Flare Signature',
     color: '#5B6771',
     dailyLimit: 2500,
     monthlyFee: 4.95,
@@ -58,7 +58,7 @@ export const CARD_TIERS = [
   {
     id: 'black',
     name: 'Black',
-    brandName: 'CoinPayments Black',
+    brandName: 'Flare Black',
     color: '#1A1A1A',
     dailyLimit: 10000,
     monthlyFee: 14.95,

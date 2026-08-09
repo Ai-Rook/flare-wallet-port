@@ -1,4 +1,4 @@
-// AppContext — Global state for the CoinPayments app
+// AppContext — Global state for the Flare wallet app
 // Provides simple { isLoggedIn, user, setLoggedIn, setUser, setToken, balances }
 // matching what all screen components expect
 import React, { createContext, useState, useEffect } from 'react';
@@ -7,8 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const AppContext = createContext(null);
 
 const DEMO_USER = {
-  name: 'CoinPayments User',
-  email: 'demo@coinpayments.com',
+  name: 'Flare User',
+  email: 'demo@flarewallet.app',
   kycStatus: true,
 };
 

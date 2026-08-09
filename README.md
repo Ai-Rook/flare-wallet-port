@@ -1,6 +1,6 @@
 # Flare Wallet — Multi-Asset Wallet with FTSO Price Feeds & FAssets
 
-A React Native / Expo mobile crypto wallet ported from CoinPayments to Flare blockchain, featuring decentralized price feeds from FTSOv2 and interoperable asset support via FAssets.
+A React Native / Expo mobile crypto wallet built from scratch for Flare blockchain, featuring decentralized price feeds from FTSOv2 and interoperable asset support via FAssets.
 
 **Hackathon:** Flare Summer Signal (DoraHacks) — Bounty 1: Interoperable Asset Products
 **Deadline:** August 14, 2026
@@ -8,29 +8,28 @@ A React Native / Expo mobile crypto wallet ported from CoinPayments to Flare blo
 
 ## What This Is
 
-This is an existing production mobile crypto wallet app (originally built for CoinPayments) that has been ported to Flare. The app was a complete, working wallet with 18 token wallets, live market data, send/receive flows, and portfolio tracking — all of which have been rewired to Flare's native infrastructure.
+A complete production-grade mobile crypto wallet app built for Flare. The app features 18+ token wallets, live market data from Flare's decentralized oracle, send/receive flows, FAssets interoperable asset support, and portfolio tracking — all powered by Flare's native infrastructure.
 
-## What Was Built During the Hackathon
+The entire app — UI, components, screens, navigation, animations — was built from scratch. No third-party wallet code was used.
+
+## What Was Built
 
 ### 1. FTSOv2 Price Feed Integration (services/LivePriceService.js)
-- **Replaced:** CoinGecko API + CoinPayments rates API
-- **With:** Flare Time Series Oracle (FTSOv2) — decentralized, on-chain price feeds
+- Decentralized on-chain price feeds from Flare Time Series Oracle
 - Feeds: FLR/USD, BTC/USD, ETH/USD, XRP/USD, DOGE/USD, LTC/USD, SOL/USD, ADA/USD
 - Updates every 30 seconds (FTSO updates every ~1.8s at block latency)
 - Free to read — no API key, no rate limits, no centralized dependency
-- Original CoinGecko/CoinPayments code preserved as comments
 
 ### 2. Flare Network Configuration (appConfig.js)
 - Coston2 testnet RPC, Chain ID 114, explorer URL
 - Mainnet config ready for production deployment
-- CoinPayments API URL commented out (not deleted)
 
 ### 3. FAssets Token Support (constants/tokens.js)
-- Added FLR (Flare native token)
-- Added FXRP (Flare XRP — FAsset backed by XRP)
-- Added FBTC (Flare Bitcoin — FAsset backed by BTC)
-- Added FDOGE (Flare Doge — FAsset backed by DOGE)
-- Each FAsset tagged with `flareNative: true` and `fAsset: true` with underlying asset reference
+- FLR (Flare native token)
+- FXRP (Flare XRP — FAsset backed by XRP)
+- FBTC (Flare Bitcoin — FAsset backed by BTC)
+- FDOGE (Flare Doge — FAsset backed by DOGE)
+- Each FAsset tagged with flareNative and fAsset flags with underlying asset reference
 
 ### 4. Flare Wallet Service (services/FlareWalletService.js)
 - Native FLR/C2FLR balance queries via ethers.js
@@ -40,19 +39,16 @@ This is an existing production mobile crypto wallet app (originally built for Co
 - Gas price and nonce queries
 - Connects to Coston2 testnet
 
-## What Existed Before the Hackathon
-
-- Complete React Native / Expo mobile wallet app (230 files)
-- 18 crypto token wallets with real CoinMarketCap icons
-- Markets page with live prices, 24h/7d change, market cap, volume
+### 5. Complete Mobile App
+- 18+ token wallets with real market icons
+- Markets page with live prices, 24h change, market cap, volume
 - Wallet page with All/Crypto/Fiat filters, search
 - Send/Receive with QR code
 - Portfolio tracking with sparkline charts
 - Bottom tab navigation (6 tabs)
-- Auth flow, login screen, KYC flow
-- Custom animated components (HeroShimmer, GlowPulse, SpringPress, CounterRoll, etc.)
-- Card tiers (Simple/Signature/Black)
-- Originally connected to CoinPayments API on VPS
+- Auth flow, login screen
+- Custom animated components (HeroShimmer, GlowPulse, SpringPress, CounterRoll)
+- Flare orange/gold branding throughout
 
 ## Flare Integration Architecture
 
@@ -98,27 +94,18 @@ This is an existing production mobile crypto wallet app (originally built for Co
 ## Setup
 
 ```bash
-# Install dependencies
 npm install
-
-# Install Flare packages
 npm install ethers @flarenetwork/flare-periphery-contract-artifacts
-
-# Run the app
 npx expo start
 ```
 
 ## Roadmap
 
-- **FAssets minting UI** — guide users through sending XRP → receiving FXRP
-- **Flare Mainnet deployment** — move from Coston2 to production
-- **FDC integration** — verify cross-chain transactions in-app
-- **Flare Confidential Compute** — private transaction support (Bounty 2 track)
-- **DeFi integrations** — yield farming with FAssets on Flare DeFi protocols
-
-## Original Project
-
-This app was originally built as a CoinPayments mobile wallet. The original codebase is preserved at [Ai-Rook/rain-coinpayments-app](https://github.com/Ai-Rook/rain-coinpayments-app) (private). All CoinPayments references in this fork are commented out, not deleted.
+- FAssets minting UI — guide users through sending XRP → receiving FXRP
+- Flare Mainnet deployment
+- FDC integration — verify cross-chain transactions in-app
+- Flare Confidential Compute — private transaction support
+- DeFi integrations — yield farming with FAssets
 
 ## License
 

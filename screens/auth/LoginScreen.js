@@ -51,7 +51,7 @@ export default function LoginScreen({ navigation }) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
-        {/* Header — blue gradient matching CoinPayments design */}
+        {/* Header — blue gradient matching Flare design */}
         <LinearGradient
           colors={Colors.primaryGradient}
           style={styles.header}
@@ -70,7 +70,7 @@ export default function LoginScreen({ navigation }) {
           <Text style={{ fontSize: 15, fontWeight: '400', color: Colors.textLight, marginBottom: 24 }}>Powered by QNTM PAY</Text>
         </View>
 
-        {/* Form — white background matching CoinPayments design */}
+        {/* Form — white background matching Flare design */}
         <View style={styles.form}>
           {/* Username field — underlined style */}
           <View style={styles.inputGroup}>

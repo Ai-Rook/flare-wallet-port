@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
  * Layout: [← back] | [CP logo] [page name] ... [right action]
  *
  * Brand left-aligned, right action pinned right.
- * Combined logo image (icon + "CoinPayments" in one PNG).
+ * Combined logo image (icon + "Flare" in one PNG).
  */
 export default function ScreenHeader({
   pageName = '',

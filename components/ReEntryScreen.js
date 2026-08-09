@@ -8,7 +8,7 @@ import { View, Text, Animated, StyleSheet, TouchableOpacity, Modal } from 'react
  * Props:
  *   visible — show/hide
  *   gradientColors — top/bottom gradient (default Spend blue-to-purple)
- *   brandText — brand name shown in auth card (default "CoinPayments")
+ *   brandText — brand name shown in auth card (default "Flare")
  *   authType — 'face-id' | 'touch-id' | 'passcode'
  *   onAuthenticate — success callback
  *   onFallback — fallback to passcode/password
@@ -22,7 +22,7 @@ const AUTH_CONFIG = {
 export default function ReEntryScreen({
   visible = false,
   gradientColors = ['#5856D6', '#7B79E8', '#8E6CC7'],
-  brandText = 'CoinPayments',
+  brandText = 'Flare',
   authType = 'face-id',
   onAuthenticate,
   onFallback,

@@ -24,7 +24,7 @@ export default function HomeCardHero() {
         end={{ x: 1, y: 1 }}
       >
         <View style={styles.cardTop}>
-          <Text style={styles.cardBrand}>CoinPayments</Text>
+          <Text style={styles.cardBrand}>Flare</Text>
           <Text style={styles.cardType}>DEBIT</Text>
         </View>
         <View style={styles.chipRow}>
@@ -44,7 +44,7 @@ export default function HomeCardHero() {
         </View>
       </LinearGradient>
 
-      <Text style={styles.cardCaption}>CoinPayments Debit Card</Text>
+      <Text style={styles.cardCaption}>Flare Debit Card</Text>
     </View>
   );
 }

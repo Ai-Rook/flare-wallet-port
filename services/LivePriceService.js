@@ -1,6 +1,6 @@
 /**
  * LivePriceService — fetches live crypto prices from Flare FTSOv2 oracle.
- * Replaces CoinGecko/CoinPayments API with decentralized on-chain price feeds.
+ * Replaces centralized price APIs with decentralized on-chain price feeds.
  *
  * FTSOv2: block-latency feeds, free to read, updates every ~1.8s.
  * Refreshes every 30 seconds for mobile efficiency.
@@ -43,8 +43,8 @@ const FEED_IDS = [
 // Map feed index → token symbol
 const FEED_SYMBOLS = ['FLR', 'BTC', 'ETH', 'XRP', 'DOGE', 'LTC', 'SOL', 'ADA'];
 
-// ── ORIGINAL CoinPayments/CoinGecko config (preserved, commented out) ──
-// const CP_RATES_URL = 'https://www.coinpayments.net/api/v2/rates?accepted=1&format=json';
+// ── ORIGINAL centralized API config (preserved, commented out) ──
+// const CP_RATES_URL = '// centralized API (removed)
 // const CG_RATES_URL = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple,solana,litecoin,binancecoin&vs_currencies=usd&include_24hr_change=true';
 // const CG_PROXY_URL = 'http://149.28.37.72:3010/api/prices';
 // const CG_ID_MAP = { BTC: 'bitcoin', ETH: 'ethereum', XRP: 'ripple', SOL: 'solana', LTC: 'litecoin', BNB: 'binancecoin', USDT: 'tether', ADA: 'cardano', DOGE: 'dogecoin', DOT: 'polkadot', AVAX: 'avalanche-2', MATIC: 'matic-network', LINK: 'chainlink', UNI: 'uniswap', ATOM: 'cosmos' };

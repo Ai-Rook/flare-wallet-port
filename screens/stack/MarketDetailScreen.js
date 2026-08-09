@@ -277,7 +277,7 @@ function getAboutText(id, name) {
     'usd-coin': 'USDC is a fully-reserved stablecoin pegged to the US Dollar, issued by Circle. Known for transparency and regulatory compliance.',
     uniswap: 'Uniswap is the leading decentralized exchange on Ethereum, enabling token swaps through automated liquidity pools.',
   };
-  return descriptions[id] || `${name || 'This asset'} is a digital asset available on CoinPayments. Market data and analysis are shown above.`;
+  return descriptions[id] || `${name || 'This asset'} is a digital asset available on Flare. Market data and analysis are shown above.`;
 }
 
 // Gauge helpers — derive buy/sell/neutral from market data

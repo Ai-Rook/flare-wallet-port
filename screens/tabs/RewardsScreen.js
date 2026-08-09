@@ -11,8 +11,8 @@ import AnimatedProgress from '../../components/AnimatedProgress';
 
 const REWARDS = [
   { id: 1, title: 'First Purchase', desc: 'Make your first crypto purchase', points: 100, icon: '🛒', earned: true },
-  { id: 2, title: 'Card Activator', desc: 'Activate your CoinPayments card', points: 250, icon: '💳', earned: true },
-  { id: 3, title: 'Referral Master', desc: 'Refer 3 friends to CoinPayments', points: 500, icon: '👥', earned: false, progress: '1/3' },
+  { id: 2, title: 'Card Activator', desc: 'Activate your Flare card', points: 250, icon: '💳', earned: true },
+  { id: 3, title: 'Referral Master', desc: 'Refer 3 friends to Flare', points: 500, icon: '👥', earned: false, progress: '1/3' },
   { id: 4, title: 'HODLer', desc: 'Hold $1,000+ in crypto for 30 days', points: 300, icon: '💎', earned: false, progress: '12/30 days' },
   { id: 5, title: 'Trader Pro', desc: 'Complete 10 exchanges', points: 400, icon: '📊', earned: false, progress: '3/10' },
   { id: 6, title: 'Early Adopter', desc: 'Join within first 6 months', points: 150, icon: '⭐', earned: true },

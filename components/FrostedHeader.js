@@ -6,7 +6,7 @@ import React, { useRef } from 'react';
 import { View, Text, StyleSheet, Animated, TouchableOpacity, Image } from 'react-native';
 import { BlurView } from 'expo-blur';
 
-export default function FrostedHeader({ title, onBack, scrollY, brandText = 'CoinPayments', rightAction }) {
+export default function FrostedHeader({ title, onBack, scrollY, brandText = 'Flare', rightAction }) {
   const headerOpacity = scrollY ? scrollY.interpolate({
     inputRange: [0, 80],
     outputRange: [0, 1],

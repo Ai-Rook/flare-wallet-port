@@ -79,7 +79,7 @@ export default function CardsScreen({ navigation }) {
                 end={{ x: 1, y: 1 }}
               >
                 <View style={styles.cardTop}>
-                  <Text style={styles.cardBrand}>CoinPayments</Text>
+                  <Text style={styles.cardBrand}>Flare</Text>
                   <Text style={styles.cardContactless}>📶</Text>
                 </View>
                 <View style={styles.chipArea}>

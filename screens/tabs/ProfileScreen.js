@@ -74,7 +74,7 @@ export default function ProfileScreen({ navigation }) {
           </View>
           <View style={styles.userInfo}>
             <Text style={styles.userName}>John Smith</Text>
-            <Text style={styles.userEmail}>john@coinpayments.com</Text>
+            <Text style={styles.userEmail}>john@flarewallet.app</Text>
           </View>
           <View style={styles.verifiedBadge}>
             <Text style={styles.verifiedText}>✓ Verified</Text>

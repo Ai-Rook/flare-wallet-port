@@ -52,11 +52,11 @@ export function getFiatByCode(code) {
   return TOKENS.find(t => t.type === 'fiat' && t.symbol === code) || null;
 }
 
-// Card tiers — CoinPayments Simple/Signature/Black
+// Card tiers — Flare Simple/Signature/Black
 export const CARD_TIERS = [
   {
     id: 'simple',
-    name: 'CoinPayments Simple™',
+    name: 'Flare Simple™',
     color: '#1255D1',
     dailyLimit: 500,
     fee: 25,
@@ -66,7 +66,7 @@ export const CARD_TIERS = [
   },
   {
     id: 'signature',
-    name: 'CoinPayments Signature™',
+    name: 'Flare Signature™',
     color: '#5B6771',
     dailyLimit: 10000,
     fee: 50,
@@ -76,7 +76,7 @@ export const CARD_TIERS = [
   },
   {
     id: 'black',
-    name: 'CoinPayments Black™',
+    name: 'Flare Black™',
     color: '#1A1A1A',
     dailyLimit: 100000,
     fee: 0,

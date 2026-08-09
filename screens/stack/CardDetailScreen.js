@@ -44,7 +44,7 @@ export default function CardDetailScreen({ navigation, route }) {
       <ScreenHeader pageName={tier?.name || 'Card'} onBack={() => navigation.goBack()} />
       <ScrollView style={styles.content}
         contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* Card visual — matching CoinPayments card mockups */}
+        {/* Card visual — matching Flare card mockups */}
         <View style={[styles.cardVisual, { backgroundColor: tier.color }]}>
           <Text style={[styles.cardName, tier.id === 'black' && { color: Colors.cardBlackGold }]}>{tier.name}</Text>
           <View style={styles.cardChip} />

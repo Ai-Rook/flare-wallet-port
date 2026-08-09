@@ -1,9 +1,9 @@
 // ============================================================
-// constants/colors.js — CoinPayments Light theme
-// Original CoinPayments app: white canvas, blue accents, light gray BG
+// constants/colors.js — Flare Light theme
+// Original app: white canvas, blue accents, light gray BG
 // ============================================================
 export const BRAND_COLORS = {
-  // CoinPayments blue — primary brand color
+  // Flare blue — primary brand color
   primary: '#007AFF',
   primaryDark: '#0055CC',
   primaryLight: '#4DA3FF',
@@ -57,9 +57,9 @@ export const BRAND_COLORS = {
   gold: '#C9A84C',
 };
 
-// Colors alias — CoinPayments Light theme
+// Colors alias — Flare Light theme
 export const Colors = {
-  // CoinPayments blue — primary brand
+  // Flare blue — primary brand
   primary: '#007AFF',
   primaryDark: '#0055CC',
   primaryLight: '#4DA3FF',
