@@ -3,7 +3,13 @@
 // ============================================================
 
 export const TOKENS = [
-  // Crypto
+  // Flare native + FAssets (interoperable)
+  { id: 'flare', symbol: 'FLR', name: 'Flare', type: 'crypto', color: '#FFD700', icon: '◉', decimals: 18, flareNative: true },
+  { id: 'fxrp', symbol: 'FXRP', name: 'Flare XRP', type: 'crypto', color: '#23292F', icon: '✕', decimals: 6, flareNative: true, fAsset: true, underlying: 'XRP' },
+  { id: 'fbtc', symbol: 'FBTC', name: 'Flare Bitcoin', type: 'crypto', color: '#F7931A', icon: '₿', decimals: 8, flareNative: true, fAsset: true, underlying: 'BTC' },
+  { id: 'fdoge', symbol: 'FDOGE', name: 'Flare Doge', type: 'crypto', color: '#C2A633', icon: 'Ð', decimals: 8, flareNative: true, fAsset: true, underlying: 'DOGE' },
+
+  // Crypto (original)
   { id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin', type: 'crypto', color: '#F7931A', icon: '₿', decimals: 8 },
   { id: 'ethereum', symbol: 'ETH', name: 'Ethereum', type: 'crypto', color: '#627EEA', icon: 'Ξ', decimals: 18 },
   { id: 'usd-coin', symbol: 'USDC', name: 'USD Coin', type: 'crypto', color: '#2775CA', icon: 'U$', decimals: 6 },

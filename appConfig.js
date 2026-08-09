@@ -4,14 +4,22 @@
 // CoinPayments is a one-file change (swap logo + names).
 // ============================================================
 
-export const BRAND = 'CoinPayments';
-export const TAGLINE = 'CoinPayments now. Live later.';
+export const BRAND = 'Flare';
+export const TAGLINE = 'Interoperable assets. Decentralized prices.';
 
 // CoinPayments logo path (swap this when rebrand is ready)
 export const LOGO_PATH = null; // null = use text logo fallback
 
-// API base URL — CoinPayments API running on VPS
-export const API_BASE_URL = 'http://149.28.37.72:4000';
+// API base URL — CoinPayments API running on VPS (preserved, commented out)
+// export const API_BASE_URL = 'http://149.28.37.72:4000';
+
+// Flare network configuration
+export const FLARE_RPC = 'https://coston2-api.flare.network/ext/C/rpc';
+export const FLARE_CHAIN_ID = 114;
+export const FLARE_NATIVE_TOKEN = 'C2FLR';
+export const FLARE_EXPLORER = 'https://coston2-explorer.flare.network';
+export const FLARE_MAINNET_RPC = 'https://flare-api.flare.network/ext/C/rpc';
+export const FLARE_MAINNET_CHAIN_ID = 14;
 
 // Card tiers (brand names, Tokens/USDC hold amounts, limits)
 export const CARD_TIERS = [
