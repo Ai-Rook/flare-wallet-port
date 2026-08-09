@@ -50,7 +50,7 @@ export default function SendScreen({ navigation }) {
 
   const scanOpacity = scanPulse.interpolate({ inputRange: [0, 1], outputRange: [0.3, 0.8] });
 
-  // ─── SUCCESS — Spend-style TxPopup ───
+  // ─── SUCCESS — Flare-style TxPopup ───
   if (step === 'sent') {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -73,7 +73,7 @@ export default function SendScreen({ navigation }) {
     );
   }
 
-  // ─── CONFIRM BOTTOM SHEET — Spend style ───
+  // ─── CONFIRM BOTTOM SHEET — Flare style ───
   if (step === 'confirm') {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -152,7 +152,7 @@ export default function SendScreen({ navigation }) {
       <ScreenHeader pageName="Send" onBack={() => navigation.goBack?.()} />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* QR scanner area — Spend dark gradient style */}
+        {/* QR scanner area — Flare dark gradient style */}
         <SpringPress onPress={() => {}} activeScale={0.95}>
           <LinearGradient colors={['#1A1A3E', '#2D2D6B']} style={styles.qrArea} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}>
             <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '700', marginBottom: 12 }}>QR Code Scan</Text>
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   headerPage: { color: 'rgba(255,255,255,0.7)', fontSize: 18, fontWeight: '400' },
   content: { flex: 1, paddingHorizontal: 16, paddingTop: 16 },
 
-  // QR area — dark gradient like Spend
+  // QR area — dark gradient like Flare
   qrArea: {
     borderRadius: 20, padding: 20, alignItems: 'center', marginBottom: 20,
     shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 12, elevation: 4,

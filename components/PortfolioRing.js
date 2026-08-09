@@ -3,7 +3,7 @@ import { View, Animated, StyleSheet } from 'react-native';
 
 /**
  * PortfolioRing — animated circular progress ring with colored arc segments.
- * Matches the Spend portfolio orb with radial glow + colored arcs.
+ * Matches the Flare portfolio orb with radial glow + colored arcs.
  *
  * Props:
  *   size — diameter of the ring (default 120)

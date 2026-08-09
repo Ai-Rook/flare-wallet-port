@@ -3,7 +3,7 @@ import { View, Text, Animated, StyleSheet } from 'react-native';
 
 /**
  * ToastSlide — animated notification toast that slides in from the top.
- * Matches Spend's blue snackbar / toast notification style.
+ * Matches Flare.s blue snackbar / toast notification style.
  *
  * Props:
  *   visible — show/hide (default false)

@@ -30,7 +30,7 @@ export const CARD_TIERS = [
     color: '#1255D1',
     dailyLimit: 500,
     monthlyFee: 0,
-    spndHold: 0,
+    flareHold: 0,
     features: [
       'Virtual card',
       'Contactless payments',
@@ -46,7 +46,7 @@ export const CARD_TIERS = [
     color: '#5B6771',
     dailyLimit: 2500,
     monthlyFee: 4.95,
-    spndHold: 500,
+    flareHold: 500,
     features: [
       'Physical + virtual card',
       'Contactless + chip',
@@ -62,7 +62,7 @@ export const CARD_TIERS = [
     color: '#1A1A1A',
     dailyLimit: 10000,
     monthlyFee: 14.95,
-    spndHold: 1500,
+    flareHold: 1500,
     features: [
       'Premium physical card',
       'All Signature features',

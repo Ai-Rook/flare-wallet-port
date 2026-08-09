@@ -13,7 +13,7 @@ export const BRAND_COLORS = {
   accent: '#007AFF',
   accentDark: '#0055CC',
 
-  // Card tier colors (matching original Spend card line)
+  // Card tier colors (matching original Flare card line)
   tierSimple: '#1255D1',
   tierSignature: '#5B6771',
   tierBlack: '#1A1A1A',
@@ -63,7 +63,7 @@ export const Colors = {
   primary: '#007AFF',
   primaryDark: '#0055CC',
   primaryLight: '#4DA3FF',
-  primaryGradient: ['#007AFF', '#5856D6'],
+  primaryGradient: ['#007AFF', '#FF9F1C'],
 
   // Accent
   accent: '#007AFF',
@@ -110,7 +110,7 @@ export const Colors = {
   verified: '#34C759',
 
   // Agentic purple
-  agenticPurple: '#5856D6',
+  agenticPurple: '#FF9F1C',
   agenticPurpleDark: '#3A38B0',
   agenticPurpleLight: '#7B79E8',
 };

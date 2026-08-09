@@ -3,7 +3,7 @@ import { View, Animated, StyleSheet } from 'react-native';
 
 /**
  * CardStackReveal — offset cards behind the main card that slide into position.
- * Creates the "card stack / carousel" 3D depth effect from Spend success screens.
+ * Creates the "card stack / carousel" 3D depth effect from Flare success screens.
  *
  * Props:
  *   count — number of background cards (default 2)

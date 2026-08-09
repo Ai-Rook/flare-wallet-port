@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 /**
  * HeroShimmer — a gradient light sweep that animates across a hero area.
- * Gives the "lit from within" premium fintech feel like Spend.
+ * Gives the "lit from within" premium fintech feel like Flare.
  *
  * Usage: Wrap any hero content. The shimmer sweeps left-to-right on a loop.
  *

@@ -51,7 +51,7 @@ export default function LoginScreen({ navigation }) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
-        {/* Header — blue gradient matching Flare design */}
+        {/* Header — orange gradient Flare design */}
         <LinearGradient
           colors={Colors.primaryGradient}
           style={styles.header}
@@ -67,10 +67,10 @@ export default function LoginScreen({ navigation }) {
 
         <View style={{ alignItems: 'center', paddingVertical: 32 }}>
           <Image source={require('../../assets/cp-logo-dark-300.png')} style={{ width: 220, height: 32, resizeMode: 'contain', marginBottom: 8 }} />
-          <Text style={{ fontSize: 15, fontWeight: '400', color: Colors.textLight, marginBottom: 24 }}>Powered by QNTM PAY</Text>
+          <Text style={{ fontSize: 15, fontWeight: '400', color: Colors.textLight, marginBottom: 24 }}>Powered by Flare FTSO</Text>
         </View>
 
-        {/* Form — white background matching Flare design */}
+        {/* Form — white background Flare design */}
         <View style={styles.form}>
           {/* Username field — underlined style */}
           <View style={styles.inputGroup}>

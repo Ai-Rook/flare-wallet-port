@@ -15,7 +15,7 @@ const SETTINGS_SECTIONS = [
     title: 'Account',
     items: [
       { id: 'kyc', label: 'KYC Verification', icon: require('../../assets/profile-icons/kyc.png'), detail: 'Verified', color: '#4CD964', screen: 'KYC' },
-      { id: 'security', label: 'Security', icon: require('../../assets/profile-icons/security.png'), detail: '2FA Enabled', color: '#5856D6', screen: 'CardSettings' },
+      { id: 'security', label: 'Security', icon: require('../../assets/profile-icons/security.png'), detail: '2FA Enabled', color: '#FF9F1C', screen: 'CardSettings' },
       { id: 'linked', label: 'Linked Banks', icon: require('../../assets/profile-icons/banks.png'), detail: '1 connected', color: '#007AFF', screen: 'BankLink' },
     ],
   },
@@ -24,7 +24,7 @@ const SETTINGS_SECTIONS = [
     items: [
       { id: 'lock', label: 'Lock Card', icon: require('../../assets/profile-icons/lock.png'), detail: 'Active', color: '#4CD964', toggle: true },
       { id: 'pin', label: 'Change PIN', icon: require('../../assets/profile-icons/pin.png'), detail: '', color: '#FF9500', screen: 'CardSettings' },
-      { id: 'limits', label: 'Spending Limits', icon: require('../../assets/profile-icons/limits.png'), detail: '$5K/day', color: '#5856D6', screen: 'CardSettings' },
+      { id: 'limits', label: 'Flare.ng Limits', icon: require('../../assets/profile-icons/limits.png'), detail: '$5K/day', color: '#FF9F1C', screen: 'CardSettings' },
       { id: 'activate', label: 'Activate Card', icon: require('../../assets/profile-icons/activate.png'), detail: '', color: '#007AFF', screen: 'CardOrder' },
     ],
   },
@@ -32,7 +32,7 @@ const SETTINGS_SECTIONS = [
     title: 'Preferences',
     items: [
       { id: 'notifications', label: 'Notifications', icon: require('../../assets/profile-icons/notifications.png'), detail: 'On', color: '#FF3B30', toggle: true },
-      { id: 'biometric', label: 'Biometric Login', icon: require('../../assets/profile-icons/biometric.png'), detail: 'Face ID', color: '#5856D6', toggle: true },
+      { id: 'biometric', label: 'Biometric Login', icon: require('../../assets/profile-icons/biometric.png'), detail: 'Face ID', color: '#FF9F1C', toggle: true },
       { id: 'currency', label: 'Default Currency', icon: require('../../assets/profile-icons/currency.png'), detail: 'USD', color: '#4CD964', screen: 'CardSettings' },
       { id: 'language', label: 'Language', icon: require('../../assets/profile-icons/language.png'), detail: 'English', color: '#007AFF', screen: 'CardSettings' },
     ],
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
   },
   avatar: {
-    width: 48, height: 48, borderRadius: 24, backgroundColor: '#5856D6',
+    width: 48, height: 48, borderRadius: 24, backgroundColor: '#FF9F1C',
     alignItems: 'center', justifyContent: 'center', marginRight: 14,
   },
   avatarText: { color: '#FFF', fontSize: 18, fontWeight: '700' },

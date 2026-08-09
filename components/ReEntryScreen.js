@@ -2,12 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, Animated, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 
 /**
- * ReEntryScreen — Spend-style biometric re-entry screen.
+ * ReEntryScreen — Flare-style biometric re-entry screen.
  * Full-screen gradient with centered auth card.
  *
  * Props:
  *   visible — show/hide
- *   gradientColors — top/bottom gradient (default Spend blue-to-purple)
+ *   gradientColors — top/bottom gradient (default Flare blue-to-purple)
  *   brandText — brand name shown in auth card (default "Flare")
  *   authType — 'face-id' | 'touch-id' | 'passcode'
  *   onAuthenticate — success callback

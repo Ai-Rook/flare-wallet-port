@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Image, StyleSheet, Animated, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, Animated, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function SplashScreen({ onFinish }) {
@@ -9,7 +9,6 @@ export default function SplashScreen({ onFinish }) {
   const fadeOut = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // Sequence: logo springs in → text fades in → pause → fade everything out
     Animated.sequence([
       Animated.parallel([
         Animated.spring(logoScale, { toValue: 1, friction: 5, tension: 40, useNativeDriver: true }),
@@ -26,12 +25,15 @@ export default function SplashScreen({ onFinish }) {
   return (
     <Animated.View style={[styles.container, { opacity: fadeOut }]}>
       <StatusBar barStyle="light-content" />
-      <LinearGradient colors={['#5856D6', '#7B79E8', '#6A56E0']} style={StyleSheet.absoluteFill} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} />
+      <LinearGradient colors={['#FF9F1C', '#FFC940', '#E8870C']} style={StyleSheet.absoluteFill} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} />
       <Animated.View style={{ transform: [{ scale: logoScale }], opacity: logoOpacity, alignItems: 'center' }}>
-        <Image source={require('../../assets/cp-logo-white-300.png')} style={{ height: 56, width: undefined, aspectRatio: 2.5 }} resizeMode="contain" />
+        <View style={styles.logoCircle}>
+          <Text style={styles.logoText}>◉</Text>
+        </View>
+        <Text style={styles.brandText}>Flare Wallet</Text>
       </Animated.View>
-      <Animated.View style={{ opacity: textOpacity, alignItems: 'center', marginTop: 12 }}>
-        <Text style={styles.tagline}>Next-Gen Crypto Wallet</Text>
+      <Animated.View style={{ opacity: textOpacity, alignItems: 'center', marginTop: 8 }}>
+        <Text style={styles.tagline}>Interoperable Assets. Decentralized Prices.</Text>
       </Animated.View>
     </Animated.View>
   );
@@ -40,11 +42,11 @@ export default function SplashScreen({ onFinish }) {
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   logoCircle: {
-    width: 80, height: 80, borderRadius: 40, backgroundColor: '#FFFFFF',
+    width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 12, elevation: 8,
+    borderWidth: 2, borderColor: 'rgba(255,255,255,0.3)',
   },
-  logoText: { fontSize: 32, fontWeight: '800', color: '#5856D6' },
-  brandText: { fontSize: 32, fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5 },
-  tagline: { fontSize: 14, color: 'rgba(255,255,255,0.7)', marginTop: 4, fontWeight: '500' },
+  logoText: { fontSize: 36, color: '#FFFFFF' },
+  brandText: { fontSize: 28, fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5, marginTop: 12 },
+  tagline: { fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 4, fontWeight: '500' },
 });

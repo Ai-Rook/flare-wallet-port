@@ -90,7 +90,7 @@ export const cardApi = {
   lock: (cardId) => api.post(`/cards/${cardId}/lock`),
   unlock: (cardId) => api.post(`/cards/${cardId}/unlock`),
   order: (tier, type) => api.post('/cards/order', { tier, type }),
-  setSpendingLimit: (cardId, dailyLimit) =>
+  setFlare.ngLimit: (cardId, dailyLimit) =>
     api.put(`/cards/${cardId}/spending-limit`, { dailyLimit }),
 };
 

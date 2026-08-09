@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, Animated, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 
 /**
- * TxPopup — Spend-style transaction result popup.
+ * TxPopup — Flare-style transaction result popup.
  * White modal overlay with: transaction title, colored icon circle,
  * crypto amount + badge, Transaction Details white card, close button.
  *

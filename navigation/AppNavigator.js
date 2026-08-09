@@ -34,7 +34,7 @@ const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
 
-// Spend tab bar icons
+// Flare tab bar icons
 const TAB_ICONS = {
   Home: {
     active: require('../assets/tab-icons/home-active.png'),

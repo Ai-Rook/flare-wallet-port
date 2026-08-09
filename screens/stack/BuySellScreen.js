@@ -59,7 +59,7 @@ export default function BuySellScreen({ navigation, route }) {
   const isBuy = side === 'buy';
   const accentColor = isBuy ? '#4CD964' : '#D4555A';
 
-  // ─── SUCCESS SCREEN — Spend style ───
+  // ─── SUCCESS SCREEN — Flare style ───
   if (step === 'complete') {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -83,7 +83,7 @@ export default function BuySellScreen({ navigation, route }) {
     );
   }
 
-  // ─── CONFIRM BOTTOM SHEET — Spend style ───
+  // ─── CONFIRM BOTTOM SHEET — Flare style ───
   if (step === 'confirm') {
     return (
       <SafeAreaView style={styles.safeArea}>

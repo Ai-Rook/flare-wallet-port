@@ -3,7 +3,7 @@ import { View, Animated, StyleSheet } from 'react-native';
 
 /**
  * GlowPulse — soft breathing shadow animation on a wrapped element.
- * Creates the "alive" premium feel like Spend card hover states.
+ * Creates the "alive" premium feel like Flare card hover states.
  *
  * Props:
  *   color — shadow color (default '#5856D6')

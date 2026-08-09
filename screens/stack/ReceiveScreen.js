@@ -55,7 +55,7 @@ export default function ReceiveScreen({ navigation, route }) {
 
       <ScrollView style={styles.content}
         contentContainerStyle={{ paddingBottom: 100 }} contentContainerStyle={{ alignItems: 'center', paddingTop: 24 }}>
-        {/* QR code card — Spend dark gradient style */}
+        {/* QR code card — Flare dark gradient style */}
         <Animated.View style={{ opacity: fadeAnim }}>
           <View style={styles.qrSection}>
             <LinearGradient colors={['#1A1A3E', '#2D2D6B']} style={styles.qrArea} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}>
@@ -113,7 +113,7 @@ export default function ReceiveScreen({ navigation, route }) {
         </SpringPress>
       </ScrollView>
 
-      {/* Received confirmation — Spend-style TxPopup */}
+      {/* Received confirmation — Flare-style TxPopup */}
       <TxPopup
         visible={showConfirm}
         type="received"

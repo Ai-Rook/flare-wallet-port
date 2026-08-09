@@ -49,7 +49,7 @@ export default function KYCScreen({ navigation }) {
       </View>
       <Text style={styles.stepTitle}>{STEPS[step]}</Text>
 
-      {/* Step illustration from Spend reference images */}
+      {/* Step illustration from Flare reference images */}
       <KycStepImage step={step} />
 
       <ScrollView style={styles.content}>

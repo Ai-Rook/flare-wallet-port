@@ -59,7 +59,7 @@ export default function CardSettingsScreen({ navigation, route }) {
           </View>
         </Animated.View>
 
-        {/* Settings cards — two-column layout matching Spend */}
+        {/* Settings cards — two-column layout matching Flare */}
         <Text style={styles.sectionTitle}>Card Management</Text>
         <View style={styles.settingsGrid}>
           {CARD_SETTINGS.map((item, i) => (
@@ -74,8 +74,8 @@ export default function CardSettingsScreen({ navigation, route }) {
           ))}
         </View>
 
-        {/* Spending limits */}
-        <Text style={styles.sectionTitle}>Spending Limits</Text>
+        {/* Flare.ng limits */}
+        <Text style={styles.sectionTitle}>Flare.ng Limits</Text>
         <View style={styles.limitsCard}>
           <View style={styles.limitRow}>
             <View style={styles.limitInfo}>
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   // Section
   sectionTitle: { fontSize: 16, fontWeight: '700', color: '#1C1C1E', marginBottom: 10, marginTop: 4 },
 
-  // Settings grid — two columns like Spend
+  // Settings grid — two columns like Flare
   settingsGrid: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 20 },
   settingCard: {
     width: '47%', backgroundColor: '#FFFFFF', borderRadius: 14,

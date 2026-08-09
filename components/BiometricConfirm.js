@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Animated, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 
 /**
- * BiometricConfirm — Spend-style "Confirm with Face ID / Touch ID / Password / Passcode" screen.
+ * BiometricConfirm — Flare-style "Confirm with Face ID / Touch ID / Password / Passcode" screen.
  * White sheet with: back arrow + "Confirm" header + close X,
  * crypto icon circle with glow, amount + badge,
  * Transaction Details card (Rate, Price, Fee, Total),

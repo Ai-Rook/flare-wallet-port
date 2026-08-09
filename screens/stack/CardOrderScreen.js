@@ -41,7 +41,7 @@ export default function CardOrderScreen({ navigation }) {
             </View>
             <Text style={styles.successTitle}>Ready to Use!</Text>
             <Text style={styles.successSub}>Your {selected.name} card is active</Text>
-            {/* Card stack reveal — 3D depth like Spend */}
+            {/* Card stack reveal — 3D depth like Flare */}
             <CardStackReveal count={2} offset={10} stagger={100} cardStyle={{ height: 80, borderRadius: 12, backgroundColor: selected.color1 }}>
               <View style={{ height: 80, borderRadius: 14, backgroundColor: '#1C1C1E', padding: 16, justifyContent: 'center' }}>
                 <Text style={{ color: '#FFF', fontSize: 16, fontWeight: '700' }}>Flare {selected.name}</Text>

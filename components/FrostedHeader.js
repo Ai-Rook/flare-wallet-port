@@ -1,6 +1,6 @@
 // ============================================================
 // FrostedHeader — Reusable frosted glass header for stack screens
-// Appears on scroll, matches Spend design
+// Appears on scroll, matches Flare design
 // ============================================================
 import React, { useRef } from 'react';
 import { View, Text, StyleSheet, Animated, TouchableOpacity, Image } from 'react-native';

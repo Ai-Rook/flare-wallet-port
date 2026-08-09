@@ -10,7 +10,7 @@ import SpringPress from '../../components/SpringPress';
 import TxPopup from '../../components/TxPopup';
 import { TOKENS } from '../../constants/tokens';
 
-// Spend-style confirmation & result patterns
+// Flare-style confirmation & result patterns
 const CRYPTO_PAIRS = [
   { from: 'BTC', to: 'ETH', rate: '1 BTC = 18.24 ETH' },
   { from: 'ETH', to: 'XRP', rate: '1 ETH = 6,532 XRP' },
@@ -83,7 +83,7 @@ export default function ExchangeScreen({ navigation }) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle="dark-content" />
-        {/* TxPopup — Spend-style transaction result */}
+        {/* TxPopup — Flare-style transaction result */}
         <TxPopup
           visible={true}
           type="exchanged"
@@ -160,7 +160,7 @@ export default function ExchangeScreen({ navigation }) {
               ))}
             </View>
 
-            {/* Confirm button — blue like Spend */}
+            {/* Confirm button — blue like Flare */}
             <SpringPress onPress={() => setStep('done')} activeScale={0.95}>
               <View style={{ backgroundColor: '#1E95EA', borderRadius: 16, paddingVertical: 18, marginHorizontal: 16, alignItems: 'center', marginBottom: 8, shadowColor: '#1E95EA', shadowOpacity: 0.3, shadowRadius: 8, elevation: 3 }}>
                 <Text style={{ color: '#FFF', fontSize: 17, fontWeight: '700' }}>Confirm with Face ID</Text>
