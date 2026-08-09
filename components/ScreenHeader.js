@@ -43,7 +43,7 @@ export default function ScreenHeader({
       {/* Brand: logo image + page name — left aligned, flex to fill */}
       <View style={styles.brandRow}>
         <Image
-          source={require('../assets/cp-logo-white-300.png')}
+          
           style={styles.logo}
           resizeMode="contain"
         />

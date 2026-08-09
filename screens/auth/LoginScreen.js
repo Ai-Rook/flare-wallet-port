@@ -66,7 +66,7 @@ export default function LoginScreen({ navigation }) {
         </LinearGradient>
 
         <View style={{ alignItems: 'center', paddingVertical: 32 }}>
-          <Image source={require('../../assets/cp-logo-dark-300.png')} style={{ width: 220, height: 32, resizeMode: 'contain', marginBottom: 8 }} />
+          <Text style={{ fontSize: 28, fontWeight: '800', color: '#FF9F1C', marginBottom: 8 }}>Flare Wallet</Text>
           <Text style={{ fontSize: 15, fontWeight: '400', color: Colors.textLight, marginBottom: 24 }}>Powered by Flare FTSO</Text>
         </View>
 
