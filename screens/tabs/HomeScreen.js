@@ -20,7 +20,7 @@ import ScreenHeader from '../../components/ScreenHeader';
 import HomeCardHero from '../../components/HomeCardHero';
 import { useLivePrices } from '../../services/LivePriceService';
 
-// Time period filters matching Spend
+// Time period filters
 const TIME_FILTERS = ['All', '1y', '1m', '1w', '1d'];
 const HOME_TABS = ['Wallets', 'Top News', 'Connect'];
 
@@ -123,7 +123,7 @@ export default function HomeScreen({ navigation }) {
         {/* Gradient hero section with shimmer */}
         <HeroShimmer height={200} duration={3000}>
         <LinearGradient
-          colors={['#5856D6', '#7B79E8', '#6A56E0']}
+          colors={['#FF9F1C', '#FFC940', '#E8870C']}
           style={styles.heroGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 0.3, y: 1 }}
@@ -178,7 +178,7 @@ export default function HomeScreen({ navigation }) {
           </LinearGradient>
         </HeroShimmer>
 
-        {/* CoinPayments Card Hero */}
+        {/* Flare Wallet Hero */}
         <HomeCardHero />
 
         {/* Tab bar */}
@@ -282,7 +282,7 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#5856D6' },
+  safeArea: { flex: 1, backgroundColor: '#FF9F1C' },
   scrollView: { flex: 1 },
   
   // Hero gradient
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   
-  // Title - Spend style big title
+  // Title - Flare wallet big title
   
   // Balance
   balanceLabel: { color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 4 },
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   },
   timeFilterActive: { backgroundColor: '#FFFFFF' },
   timeFilterText: { color: '#FFF', fontSize: 13, fontWeight: '600' },
-  timeFilterTextActive: { color: '#5856D6' },
+  timeFilterTextActive: { color: '#FF9F1C' },
   
   // Tab bar
   tabBar: {
