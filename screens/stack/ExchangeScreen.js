@@ -18,6 +18,11 @@ export default function ExchangeScreen({ navigation, route }) {
   const [toCrypto, setToCrypto] = useState('ETH');
   const [fromAmount, setFromAmount] = useState('');
   const [step, setStep] = useState('form');
+
+  // Reset to form when component unmounts (prevents blank screen on tab switch)
+  useEffect(() => {
+    return () => { setStep('form'); setSealedAuctionResult(null); };
+  }, []);
   const [swapAnim] = useState(new Animated.Value(0));
 
   const swapPair = () => {
@@ -63,7 +68,7 @@ export default function ExchangeScreen({ navigation, route }) {
               <View style={styles.detailRow}><Text style={styles.detailLabel}>USD Value</Text><Text style={styles.detailValue}>${usdValue.toFixed(2)}</Text></View>
               <View style={styles.detailRow}><Text style={styles.detailLabel}>Fee</Text><Text style={styles.detailValue}>0.5%</Text></View>
             </View>
-            <TouchableOpacity style={styles.successBtn} onPress={() => { setStep('form'); navigation.goBack?.(); }}>
+            <TouchableOpacity style={styles.successBtn} onPress={() => { setStep('form'); setSealedAuctionResult(null); navigation.goBack?.(); }}>
               <Text style={styles.successBtnText}>Done</Text>
             </TouchableOpacity>
           </View>
