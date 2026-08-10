@@ -90,9 +90,7 @@ const TAB_ICONS = {
 
 const TABS = [
   { key: 'home', label: 'Home' },
-  { key: 'cards', label: 'Cards' },
   { key: 'wallet', label: 'Wallet' },
-  { key: 'markets', label: 'Prices' },
   { key: 'agentic', label: 'Agent' },
   { key: 'profile', label: 'Profile' },
 ];
