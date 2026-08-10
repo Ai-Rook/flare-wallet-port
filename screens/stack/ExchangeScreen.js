@@ -1,6 +1,6 @@
 import ScreenHeader from '../../components/ScreenHeader';
 import FlareTokenIcon, { FASSET_UNDERLYING } from '../../components/FlareTokenIcon';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet,
   SafeAreaView, StatusBar, Animated,
