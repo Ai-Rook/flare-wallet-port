@@ -1,6 +1,6 @@
 import ScreenHeader from '../../components/ScreenHeader';
 import FlareTokenIcon, { FASSET_UNDERLYING } from '../../components/FlareTokenIcon';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet,
   SafeAreaView, StatusBar, Animated,
@@ -18,11 +18,6 @@ export default function ExchangeScreen({ navigation, route }) {
   const [toCrypto, setToCrypto] = useState('ETH');
   const [fromAmount, setFromAmount] = useState('');
   const [step, setStep] = useState('form');
-
-  // Reset to form when component unmounts (prevents blank screen on tab switch)
-  useEffect(() => {
-    return () => { setStep('form'); setSealedAuctionResult(null); };
-  }, []);
   const [swapAnim] = useState(new Animated.Value(0));
 
   const swapPair = () => {
@@ -68,7 +63,7 @@ export default function ExchangeScreen({ navigation, route }) {
               <View style={styles.detailRow}><Text style={styles.detailLabel}>USD Value</Text><Text style={styles.detailValue}>${usdValue.toFixed(2)}</Text></View>
               <View style={styles.detailRow}><Text style={styles.detailLabel}>Fee</Text><Text style={styles.detailValue}>0.5%</Text></View>
             </View>
-            <TouchableOpacity style={styles.successBtn} onPress={() => { setStep('form'); setSealedAuctionResult(null); navigation.goBack?.(); }}>
+            <TouchableOpacity style={styles.successBtn} onPress={() => { setStep('form'); setFromAmount(''); navigation.goBack?.(); }}>
               <Text style={styles.successBtnText}>Done</Text>
             </TouchableOpacity>
           </View>
@@ -140,7 +135,7 @@ export default function ExchangeScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
-      <ScreenHeader pageName="Swap" onBack={() => navigation.goBack?.()} />
+      <ScreenHeader pageName="Swap" onBack={() => { setStep('form'); setFromAmount(''); navigation.goBack?.(); }} />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* From card */}
@@ -245,8 +240,6 @@ export default function ExchangeScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Colors.background },
   content: { flex: 1, paddingHorizontal: 16, paddingTop: 16 },
-
-  // Exchange cards
   exchangeCard: { backgroundColor: Colors.surface, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: Colors.border },
   exchangeCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   exchangeLabel: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
@@ -257,32 +250,21 @@ const styles = StyleSheet.create({
   toAmount: { flex: 1, fontSize: 32, fontWeight: '700', color: Colors.text },
   balanceHint: { fontSize: 12, color: Colors.textMuted },
   rateHint: { fontSize: 12, color: Colors.primary, fontWeight: '600' },
-
-  // Swap button
   swapRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
   swapLine: { flex: 1, height: 1, backgroundColor: Colors.border },
   swapBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginHorizontal: 12, shadowColor: Colors.primary, shadowOpacity: 0.25, shadowRadius: 6, elevation: 3 },
   swapIcon: { color: '#FFF', fontSize: 20, fontWeight: '700' },
-
-  // Asset picker
   assetPicker: { flexDirection: 'row', marginBottom: 16 },
   assetChip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: Colors.surface, borderWidth: 1.5, borderColor: Colors.border, marginRight: 8 },
   assetChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   assetChipText: { fontSize: 13, fontWeight: '700', color: Colors.text, marginLeft: 6 },
-
-  // Info card
   infoCard: { backgroundColor: Colors.surface, borderRadius: 14, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
   infoLabel: { fontSize: 14, color: Colors.textMuted },
   infoValue: { fontSize: 14, fontWeight: '600', color: Colors.text },
-
   sectionTitle: { fontSize: 14, fontWeight: '700', color: Colors.textSecondary, marginBottom: 8, marginTop: 4 },
-
-  // Action button
   actionBtn: { backgroundColor: Colors.primary, borderRadius: 16, paddingVertical: 18, alignItems: 'center', marginTop: 8, marginBottom: 20, shadowColor: Colors.primary, shadowOpacity: 0.25, shadowRadius: 8, elevation: 3 },
   actionBtnText: { color: '#FFF', fontSize: 17, fontWeight: '700', letterSpacing: 0.5 },
-
-  // Sheet
   sheetCard: { backgroundColor: Colors.cream, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: 20, maxHeight: '92%' },
   sheetHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginTop: 8, marginBottom: 12 },
   sheetHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 8 },
@@ -307,8 +289,6 @@ const styles = StyleSheet.create({
   confirmBtnText: { color: '#FFF', fontSize: 17, fontWeight: '700' },
   cancelBtn: { alignItems: 'center', paddingVertical: 10, marginBottom: 8 },
   cancelText: { fontSize: 15, fontWeight: '600', color: Colors.textMuted },
-
-  // Success
   successWrap: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
   successCard: { backgroundColor: Colors.surface, borderRadius: 24, padding: 32, alignItems: 'center', width: '100%', borderWidth: 1, borderColor: Colors.border },
   successEmoji: { fontSize: 48, marginBottom: 12 },
