@@ -124,7 +124,7 @@ export default function HomeScreen({ navigation }) {
         {/* Hero — portfolio balance */}
         <HeroShimmer height={180} duration={3000}>
           <LinearGradient
-            colors={['#FF9F1C', '#FFC940', '#E8870C']}
+            colors={['#FF6300', '#FF8C1A', '#E85D04']}
             style={styles.heroGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 0.3, y: 1 }}
@@ -325,7 +325,7 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#FF9F1C' },
+  safeArea: { flex: 1, backgroundColor: '#FF6300' },
   scrollView: { flex: 1 },
   heroGradient: {
     paddingTop: 20,
@@ -338,19 +338,19 @@ const styles = StyleSheet.create({
   changePercent: { fontSize: 14, fontWeight: '500' },
   oracleTag: { color: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: '500', marginTop: 4 },
   tabBar: {
-    flexDirection: 'row', backgroundColor: '#F2F2F7',
+    flexDirection: 'row', backgroundColor: '#FFF8F0',
     paddingHorizontal: 20, paddingTop: 12, paddingBottom: 4,
     borderBottomWidth: 0.5, borderBottomColor: '#E5E5EA',
   },
-  tabBtn: { paddingHorizontal: 16, paddingVertical: 8, marginRight: 4, borderRadius: 20, backgroundColor: '#E5E5EA' },
+  tabBtn: { paddingHorizontal: 16, paddingVertical: 8, marginRight: 4, borderRadius: 20, backgroundColor: '#FFE4D1' },
   tabActive: { backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 4, elevation: 2 },
   tabText: { fontSize: 14, fontWeight: '600', color: '#8E8E93' },
-  tabTextActive: { color: '#FF9F1C' },
-  walletList: { backgroundColor: '#F2F2F7', paddingHorizontal: 16, paddingTop: 8, paddingBottom: 20 },
+  tabTextActive: { color: '#FF6300' },
+  walletList: { backgroundColor: '#FFF8F0', paddingHorizontal: 16, paddingTop: 8, paddingBottom: 20 },
   walletCard: {
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#FFFFFF', borderRadius: 14, padding: 14,
-    marginBottom: 10, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
+    marginBottom: 10, shadowColor: '#FF6300', shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
   walletLeft: { flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 10 },
   walletDivider: { width: 1, alignSelf: 'stretch', backgroundColor: '#E5E5EA', marginHorizontal: 10 },
@@ -364,15 +364,15 @@ const styles = StyleSheet.create({
   walletPrice: { fontSize: 16, fontWeight: '700', color: '#1C1C1E' },
   walletChangeRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   walletChange: { fontSize: 12, fontWeight: '600' },
-  fxContainer: { backgroundColor: '#F2F2F7', paddingHorizontal: 16, paddingTop: 16 },
+  fxContainer: { backgroundColor: '#FFF8F0', paddingHorizontal: 16, paddingTop: 16 },
   fxCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, marginBottom: 16 },
   fxTitle: { fontSize: 18, fontWeight: '700', color: '#1C1C1E', marginBottom: 4 },
-  fxSubtitle: { fontSize: 12, color: '#FF9F1C', fontWeight: '600', marginBottom: 16 },
+  fxSubtitle: { fontSize: 12, color: '#FF6300', fontWeight: '600', marginBottom: 16 },
   fxRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   fxInputWrap: { flex: 1, marginRight: 12 },
   fxLabel: { fontSize: 11, color: '#8E8E93', fontWeight: '600', marginBottom: 4 },
   fxInput: { fontSize: 24, fontWeight: '700', color: '#1C1C1E', paddingVertical: 4 },
-  fxResult: { fontSize: 24, fontWeight: '700', color: '#FF9F1C', paddingVertical: 4 },
+  fxResult: { fontSize: 24, fontWeight: '700', color: '#FF6300', paddingVertical: 4 },
   fxCurrencyWrap: { width: 100 },
   fxCurrencyBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F2F2F7', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 12 },
   fxCurrencyFlag: { fontSize: 20 },
@@ -383,11 +383,11 @@ const styles = StyleSheet.create({
   fxSectionTitle: { fontSize: 14, fontWeight: '700', color: '#8E8E93', marginBottom: 8 },
   fxCurrencyGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingBottom: 20 },
   fxCurrencyChip: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#FFFFFF', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
-  fxCurrencyChipActive: { backgroundColor: '#FF9F1C' },
+  fxCurrencyChipActive: { backgroundColor: '#FF6300' },
   fxCurrencyChipFlag: { fontSize: 16 },
   fxCurrencyChipCode: { fontSize: 13, fontWeight: '600', color: '#1C1C1E' },
-  fAssetInfoCard: { backgroundColor: '#FFFFFF', borderRadius: 14, padding: 16, marginBottom: 16, borderLeftWidth: 3, borderLeftColor: '#FF9F1C' },
+  fAssetInfoCard: { backgroundColor: '#FFFFFF', borderRadius: 14, padding: 16, marginBottom: 16, borderLeftWidth: 3, borderLeftColor: '#FF6300' },
   fAssetInfoTitle: { fontSize: 15, fontWeight: '700', color: '#1C1C1E', marginBottom: 6 },
   fAssetInfoText: { fontSize: 13, color: '#8E8E93', lineHeight: 18 },
-  fAssetBadge: { fontSize: 11, fontWeight: '600', color: '#FF9F1C', backgroundColor: 'rgba(255,159,28,0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  fAssetBadge: { fontSize: 11, fontWeight: '600', color: '#FF6300', backgroundColor: 'rgba(255,99,0,0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
 });

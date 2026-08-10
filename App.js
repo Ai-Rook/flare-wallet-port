@@ -112,7 +112,7 @@ function TabBar({ activeTab, onTabPress, onFABPress }) {
               <View style={tabStyles.tabContent}>
                 <Image
                   source={isActive ? TAB_ICONS[tab.key]?.active : TAB_ICONS[tab.key]?.inactive}
-                  style={{ width: 26, height: 26, tintColor: isActive ? '#007AFF' : '#8E8E93' }}
+                  style={{ width: 26, height: 26, tintColor: isActive ? '#FF6300' : '#9E8E83' }}
                   resizeMode="contain"
                 />
                 <Text style={[tabStyles.label, isActive && tabStyles.labelActive]}>{tab.label}</Text>
@@ -125,7 +125,7 @@ function TabBar({ activeTab, onTabPress, onFABPress }) {
         <View style={tabStyles.fabWrap}>
           <PulseFAB
             icon="+"
-            color="#5856D6"
+            color="#FF6300"
             size={44}
             onPress={onFABPress}
           />
@@ -138,7 +138,7 @@ function TabBar({ activeTab, onTabPress, onFABPress }) {
               <View style={tabStyles.tabContent}>
                 <Image
                   source={isActive ? TAB_ICONS[tab.key]?.active : TAB_ICONS[tab.key]?.inactive}
-                  style={{ width: 26, height: 26, tintColor: isActive ? '#007AFF' : '#8E8E93' }}
+                  style={{ width: 26, height: 26, tintColor: isActive ? '#FF6300' : '#9E8E83' }}
                   resizeMode="contain"
                 />
                 <Text style={[tabStyles.label, isActive && tabStyles.labelActive]}>{tab.label}</Text>
@@ -155,7 +155,7 @@ function TabBar({ activeTab, onTabPress, onFABPress }) {
 
 const tabStyles = StyleSheet.create({
   outerContainer: {
-    backgroundColor: '#F2F2F7', // Matches page bg so only the white bar pops
+    backgroundColor: '#FFF8F0', // Warm cream to match Sunkist theme
   },
   shadowStrip: {
     height: 1,
@@ -179,12 +179,12 @@ const tabStyles = StyleSheet.create({
   icon: { fontSize: 22, color: '#8E8E93', marginBottom: 2 },
   iconActive: { color: '#007AFF' },
   label: { fontSize: 10, color: '#8E8E93', fontWeight: '500' },
-  labelActive: { color: '#007AFF', fontWeight: '600' },
+  labelActive: { color: '#FF6300', fontWeight: '600' },
   underline: {
     width: 20,
     height: 2,
     borderRadius: 1,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF6300',
     marginTop: 3,
   },
   safeArea: {
@@ -303,7 +303,7 @@ function AppContent() {
       const AuthScreen = STACK_SCREENS[currentScreen];
       if (AuthScreen) {
         return (
-          <View style={{ flex: 1, backgroundColor: '#F2F2F7' }}>
+          <View style={{ flex: 1, backgroundColor: '#FFF8F0' }}>
             <AnimatedScreen animValue={stackOpacity} slideValue={stackSlide} type="stack">
               <ErrorBoundary>
                 <AuthScreen navigation={authNav} route={{ params: {} }} />
@@ -330,7 +330,7 @@ function AppContent() {
     const fakeNav = { navigate, goBack, setParams: () => {} };
 
     return (
-      <View style={{ flex: 1, backgroundColor: '#F2F2F7' }}>
+      <View style={{ flex: 1, backgroundColor: '#FFF8F0' }}>
         {/* Tab screen always underneath so back animation reveals it */}
         <Animated.View style={{ flex: 1, opacity: tabOpacity }}>
           <ErrorBoundary>
@@ -353,7 +353,7 @@ function AppContent() {
   const fakeNav = { navigate, goBack: () => {}, setParams: () => {} };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F2F2F7' }}>
+    <View style={{ flex: 1, backgroundColor: '#FFF8F0' }}>
       <AnimatedScreen animValue={tabOpacity} type="tab">
         <ErrorBoundary>
           <TabScreen navigation={fakeNav} route={{ params: {} }} />
@@ -378,7 +378,7 @@ function AppContent() {
             ].map(action => (
               <SpringPress key={action.key} onPress={() => handleFABAction(action.key)} activeScale={0.95}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 14, borderRadius: 10 }}>
-                  <Image source={action.icon} style={{ width: 22, height: 22, tintColor: '#5856D6', marginRight: 14 }} resizeMode="contain" />
+                  <Image source={action.icon} style={{ width: 22, height: 22, tintColor: '#FF6300', marginRight: 14 }} resizeMode="contain" />
                   <Text style={{ fontSize: 16, fontWeight: '600', color: '#1C1C1E' }}>{action.label}</Text>
                 </View>
               </SpringPress>

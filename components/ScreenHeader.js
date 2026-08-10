@@ -1,13 +1,11 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import FizzBubbles from './FizzBubbles';
 
 /**
- * ScreenHeader — UNIFORM purple gradient header across ALL screens.
- * Layout: [← back] | [CP logo] [page name] ... [right action]
- *
- * Brand left-aligned, right action pinned right.
- * Combined logo image (icon + "Flare" in one PNG).
+ * ScreenHeader — Sunkist orange gradient header with fizz bubble animation.
+ * Layout: [← back] | [logo] [page name] ... [right action]
  */
 export default function ScreenHeader({
   pageName = '',
@@ -20,11 +18,14 @@ export default function ScreenHeader({
 }) {
   return (
     <LinearGradient
-      colors={['#5856D6', '#7B79E8']}
+      colors={['#FF6300', '#FF8C1A', '#E85D04']}
       style={[styles.header, noBorder && styles.noBorder]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
+      {/* Fizz bubbles rising in header */}
+      <FizzBubbles count={8} color="rgba(255,255,255,0.12)" />
+
       {/* Left: back arrow or edit cancel */}
       {editing ? (
         <TouchableOpacity onPress={onCancel} style={styles.headerBtn}>
@@ -40,13 +41,9 @@ export default function ScreenHeader({
         </TouchableOpacity>
       ) : null}
 
-      {/* Brand: logo image + page name — left aligned, flex to fill */}
+      {/* Brand: logo + page name */}
       <View style={styles.brandRow}>
-        <Image
-          
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        <Text style={styles.logoText}>🍊</Text>
         {pageName ? (
           <Text style={styles.pageLabel}>{pageName}</Text>
         ) : null}
@@ -71,7 +68,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 8,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.12)',
+    borderBottomColor: 'rgba(255,255,255,0.15)',
+    overflow: 'hidden',
   },
   noBorder: {
     borderBottomWidth: 0,
@@ -105,13 +103,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 4,
   },
-  logo: {
-    height: 24,
-    width: undefined,
-    aspectRatio: 2.5,
+  logoText: {
+    fontSize: 20,
   },
   pageLabel: {
-    color: 'rgba(255,255,255,0.65)',
+    color: 'rgba(255,255,255,0.7)',
     fontSize: 16,
     fontWeight: '400',
     marginLeft: 6,

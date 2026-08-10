@@ -1,118 +1,139 @@
 // ============================================================
-// constants/colors.js — Flare Light theme
-// Original app: white canvas, blue accents, light gray BG
+// constants/colors.js — Sunkist Orange Soda theme
+// Warm, energetic, youthful. Citrus gradient + cream canvas.
 // ============================================================
+
+// Sunkist orange soda palette
+export const SUNKIST = {
+  orange:       '#FF6300',
+  orangeLight:  '#FF8C1A',
+  amber:        '#FFB627',
+  amberLight:   '#FFD060',
+  cream:        '#FFF8F0',
+  creamDark:    '#FFF0E0',
+  deepOrange:   '#E85D04',
+  burntOrange:  '#D4501C',
+  white:        '#FFFFFF',
+  textDark:     '#1A1A1A',
+  textMid:      '#6B5B50',
+  textLight:    '#9E8E83',
+  positive:     '#2ECC71',
+  negative:     '#E74C3C',
+  border:       '#FFE4D1',
+  shadowOrange: 'rgba(255,99,0,0.12)',
+};
+
 export const BRAND_COLORS = {
-  // Flare blue — primary brand color
-  primary: '#007AFF',
-  primaryDark: '#0055CC',
-  primaryLight: '#4DA3FF',
-  primaryUltraLight: '#99CCFF',
+  primary:       SUNKIST.orange,
+  primaryDark:   SUNKIST.deepOrange,
+  primaryLight:  SUNKIST.orangeLight,
+  primaryUltraLight: SUNKIST.amberLight,
 
-  // Accent
-  accent: '#007AFF',
-  accentDark: '#0055CC',
+  accent:        SUNKIST.orange,
+  accentDark:    SUNKIST.deepOrange,
 
-  // Card tier colors (matching original Flare card line)
-  tierSimple: '#1255D1',
-  tierSignature: '#5B6771',
-  tierBlack: '#1A1A1A',
+  // Card tiers
+  tierSimple:    SUNKIST.orange,
+  tierSignature: SUNKIST.burntOrange,
+  tierBlack:     '#1A1A1A',
   tierBlackAccent: '#C9A84C',
 
   // Status
-  success: '#34C759',
-  warning: '#F5A623',
-  error: '#FF3B30',
-  info: '#007AFF',
+  success: SUNKIST.positive,
+  warning: SUNKIST.amber,
+  error:   SUNKIST.negative,
+  info:    SUNKIST.orange,
 
   // Backgrounds
-  background: '#F2F2F7',
-  backgroundAlt: '#E5E5EA',
-  backgroundCard: '#FFFFFF',
+  background:     SUNKIST.cream,
+  backgroundAlt:  SUNKIST.creamDark,
+  backgroundCard: SUNKIST.white,
 
   // Text
-  textPrimary: '#1C1C1E',
-  textSecondary: '#8E8E93',
-  textTertiary: '#AEAEB2',
-  textInverse: '#FFFFFF',
+  textPrimary:   SUNKIST.textDark,
+  textSecondary: SUNKIST.textMid,
+  textTertiary:  SUNKIST.textLight,
+  textInverse:   SUNKIST.white,
 
   // Borders
-  border: '#E5E5EA',
-  borderDark: '#D1D1D6',
+  border:     SUNKIST.border,
+  borderDark: '#FFCDAB',
 
   // Shadows
-  shadowColor: '#000000',
+  shadowColor: SUNKIST.shadowOrange,
 
   // Specific UI
-  inputBg: '#FFFFFF',
-  inputBorder: '#E5E5EA',
-  inputBorderFocus: '#007AFF',
-  divider: '#E5E5EA',
-  tabBarBg: '#F8F8FC',
-  headerBg: '#007AFF',
-  headerText: '#FFFFFF',
-  positive: '#34C759',
-  negative: '#FF3B30',
-  neutral: '#8E8E93',
+  inputBg: SUNKIST.white,
+  inputBorder: SUNKIST.border,
+  inputBorderFocus: SUNKIST.orange,
+  divider: SUNKIST.border,
+  tabBarBg: SUNKIST.white,
+  headerBg: SUNKIST.orange,
+  headerText: SUNKIST.white,
+  positive: SUNKIST.positive,
+  negative: SUNKIST.negative,
+  neutral: SUNKIST.textMid,
   gold: '#C9A84C',
 };
 
-// Colors alias — Flare Light theme
 export const Colors = {
-  // Flare blue — primary brand
-  primary: '#007AFF',
-  primaryDark: '#0055CC',
-  primaryLight: '#4DA3FF',
-  primaryGradient: ['#007AFF', '#FF9F1C'],
+  // Sunkist orange — primary brand
+  primary:        SUNKIST.orange,
+  primaryDark:    SUNKIST.deepOrange,
+  primaryLight:   SUNKIST.orangeLight,
+  primaryGradient: [SUNKIST.orange, SUNKIST.amber, SUNKIST.deepOrange],
 
   // Accent
-  accent: '#007AFF',
-  accentGradient: ['#007AFF', '#0055CC'],
+  accent:         SUNKIST.orange,
+  accentGradient: [SUNKIST.orange, SUNKIST.deepOrange],
 
   // Backgrounds
-  background: '#F2F2F7',
-  backgroundDark: '#E5E5EA',
-  surface: '#FFFFFF',
-  surfaceDark: '#F8F8FC',
+  background:     SUNKIST.cream,
+  backgroundDark: SUNKIST.creamDark,
+  surface:        SUNKIST.white,
+  surfaceDark:    SUNKIST.creamDark,
 
   // Text
-  text: '#1C1C1E',
-  textLight: '#8E8E93',
-  textMuted: '#AEAEB2',
-  textWhite: '#FFFFFF',
+  text:       SUNKIST.textDark,
+  textLight:  SUNKIST.textMid,
+  textMuted:  SUNKIST.textLight,
+  textWhite:  SUNKIST.white,
 
   // Borders
-  border: '#E5E5EA',
-  borderLight: '#F2F2F7',
+  border:      SUNKIST.border,
+  borderLight: SUNKIST.cream,
 
   // Status
-  success: '#34C759',
+  success:     SUNKIST.positive,
   successLight: '#E8F8ED',
-  warning: '#F5A623',
-  error: '#FF3B30',
-  info: '#007AFF',
+  warning:     SUNKIST.amber,
+  error:       SUNKIST.negative,
+  info:        SUNKIST.orange,
 
   // Cards
-  cardSimple: '#1255D1',
-  cardSignature: '#5B6771',
-  cardBlack: '#1A1A1A',
+  cardSimple:    SUNKIST.orange,
+  cardSignature: SUNKIST.burntOrange,
+  cardBlack:     '#1A1A1A',
   cardBlackGold: '#D4AF37',
 
   // Tab bar
-  tabActive: '#007AFF',
-  tabInactive: '#8E8E93',
-  tabBarBg: '#F8F8FC',
+  tabActive:   SUNKIST.orange,
+  tabInactive: SUNKIST.textLight,
+  tabBarBg:    SUNKIST.white,
 
   // Misc
-  checkboxActive: '#007AFF',
-  linkBlue: '#007AFF',
-  remove: '#FF3B30',
-  verified: '#34C759',
+  checkboxActive: SUNKIST.orange,
+  linkBlue:       SUNKIST.orange,
+  remove:         SUNKIST.negative,
+  verified:       SUNKIST.positive,
 
-  // Agentic purple
-  agenticPurple: '#FF9F1C',
-  agenticPurpleDark: '#3A38B0',
-  agenticPurpleLight: '#7B79E8',
+  // Agentic — now orange (was purple)
+  agenticPurple:      SUNKIST.orange,
+  agenticPurpleDark:  SUNKIST.deepOrange,
+  agenticPurpleLight: SUNKIST.amber,
+
+  // Sunkist extras
+  sunkist: SUNKIST,
 };
 
 export default BRAND_COLORS;
