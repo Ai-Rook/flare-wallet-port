@@ -10,39 +10,49 @@ import { AppContext } from '../../context/AppContext';
 import TokenIcon from '../../components/TokenIcon';
 import SpringPress from '../../components/SpringPress';
 import CounterRoll from '../../components/CounterRoll';
-import { useFade } from '../../primitives/useFade';
-import { useStagger } from '../../primitives/useStagger';
 import SparklineChart from '../../components/SparklineChart';
 import HeroShimmer from '../../components/HeroShimmer';
 import GlowPulse from '../../components/GlowPulse';
 import ToastSlide from '../../components/ToastSlide';
 import ScreenHeader from '../../components/ScreenHeader';
-import HomeCardHero from '../../components/HomeCardHero';
 import { useLivePrices } from '../../services/LivePriceService';
+import { flareWallet } from '../../services/FlareWalletService';
 
 // Time period filters
 const TIME_FILTERS = ['All', '1y', '1m', '1w', '1d'];
-const HOME_TABS = ['Wallets', 'Top News', 'Connect'];
+const HOME_TABS = ['Assets', 'FX', 'FAssets'];
 
-// Mock portfolio data (will be replaced by live prices)
-const PORTFOLIO = {
-  totalBalance: 87963.34,
-  changeAmount: 468.00,
-  changePercent: 0.53,
-};
+// FAssets wallet data — Flare interoperable assets
+const FASSET_WALLETS = [
+  { symbol: 'FLR', name: 'Flare', color: '#FFD700', amount: '1,250.00', sparkline: [40, 42, 38, 45, 50, 48, 55, 52, 58, 60] },
+  { symbol: 'FXRP', name: 'Flare XRP', color: '#23292F', amount: '2,400.00', sparkline: [55, 50, 52, 48, 45, 47, 44, 42, 40, 38] },
+  { symbol: 'FBTC', name: 'Flare Bitcoin', color: '#F7931A', amount: '0.1410', sparkline: [35, 40, 38, 45, 48, 52, 50, 55, 58, 62] },
+  { symbol: 'FDOGE', name: 'Flare Doge', color: '#C2A633', amount: '8,500.00', sparkline: [30, 32, 35, 33, 36, 38, 37, 40, 39, 41] },
+];
+
+// FX currencies with live rates
+const FX_CURRENCIES = [
+  { code: 'USD', name: 'US Dollar', flag: '🇺🇸', rate: 1.0 },
+  { code: 'EUR', name: 'Euro', flag: '🇪🇺', rate: 0.92 },
+  { code: 'GBP', name: 'British Pound', flag: '🇬🇧', rate: 0.79 },
+  { code: 'CAD', name: 'Canadian Dollar', flag: '🇨🇦', rate: 1.37 },
+  { code: 'AUD', name: 'Australian Dollar', flag: '🇦🇺', rate: 1.52 },
+  { code: 'JPY', name: 'Japanese Yen', flag: '🇯🇵', rate: 157.3 },
+];
 
 // Helper to compute portfolio total from live prices
 function computePortfolio(prices, wallets) {
-  if (!prices || Object.keys(prices).length === 0) return PORTFOLIO;
   let total = 0;
   wallets.forEach(w => {
-    const live = prices[w.symbol];
+    const live = prices[w.symbol] || prices[w.underlying];
     if (live) {
       const amount = parseFloat(w.amount.replace(/,/g, ''));
       total += amount * live.price;
     }
   });
-  const btcChange = prices.BTC?.change24h || 0.53;
+  // Add USDC/USDT cash at $1
+  total += 5000; // demo cash balance
+  const btcChange = prices.BTC?.change24h || 0;
   return {
     totalBalance: total,
     changeAmount: total * (btcChange / 100),
@@ -50,30 +60,28 @@ function computePortfolio(prices, wallets) {
   };
 }
 
-// Mock wallet data with sparkline indicators
-const WALLETS = [
-  { symbol: 'BTC', name: 'Bitcoin', price: 62450.00, change: 2.48, color: '#F7931A', amount: '0.1410', sparkline: [40, 42, 38, 45, 50, 48, 55, 52, 58, 60] },
-  { symbol: 'XRP', name: 'Ripple', price: 0.5234, change: -1.24, color: '#00AAE4', amount: '1,840.00', sparkline: [55, 50, 52, 48, 45, 47, 44, 42, 40, 38] },
-  { symbol: 'BNB', name: 'Binance', price: 612.80, change: 0.87, color: '#F3BA2F', amount: '2.34', sparkline: [30, 32, 35, 33, 36, 38, 37, 40, 39, 41] },
-  { symbol: 'ETH', name: 'Ethereum', price: 3420.15, change: 3.12, color: '#627EEA', amount: '1.205', sparkline: [35, 40, 38, 45, 48, 52, 50, 55, 58, 62] },
-  { symbol: 'LTC', name: 'Litecoin', price: 83.45, change: -0.56, color: '#BFBBBB', amount: '48.50', sparkline: [48, 46, 50, 47, 44, 46, 43, 45, 42, 40] },
-  { symbol: 'SOL', name: 'Solana', price: 148.90, change: 5.21, color: '#9945FF', amount: '32.10', sparkline: [62, 70, 68, 82, 90, 86, 95] },
-];
-
 export default function HomeScreen({ navigation }) {
   const { user } = useContext(AppContext);
   const [refreshing, setRefreshing] = useState(false);
   const [timeFilter, setTimeFilter] = useState('All');
-  const [homeTab, setHomeTab] = useState('Wallets');
+  const [homeTab, setHomeTab] = useState('Assets');
+  const [fxAmount, setFxAmount] = useState('100');
+  const [fxFrom, setFxFrom] = useState('USD');
+  const [fxTo, setFxTo] = useState('EUR');
   const scrollY = useRef(new Animated.Value(0)).current;
   const headerOpacity = scrollY.interpolate({ inputRange: [0, 100], outputRange: [0, 1], extrapolate: 'clamp' });
-  
-  // Staggered entrance animation for wallet cards
-  const [walletsVisible, setWalletsVisible] = useState(false);
-  const staggerAnims = useRef(WALLETS.map(() => new Animated.Value(0))).current;
+
+  // Asset wallets — Flare versions using FTSO prices
+  const ASSET_WALLETS = [
+    { symbol: 'FBTC', name: 'Flare Bitcoin', color: '#F7931A', amount: '0.1410', sparkline: [35, 40, 38, 45, 48, 52, 50, 55, 58, 62], underlying: 'BTC', icon: 'btc' },
+    { symbol: 'FETH', name: 'Flare Ethereum', color: '#627EEA', amount: '1.205', sparkline: [30, 32, 35, 33, 36, 38, 37, 40, 39, 41], underlying: 'ETH', icon: 'eth' },
+    { symbol: 'FXRP', name: 'Flare XRP', color: '#23292F', amount: '1,840.00', sparkline: [55, 50, 52, 48, 45, 47, 44, 42, 40, 38], underlying: 'XRP', icon: 'xrp' },
+    { symbol: 'FLR', name: 'Flare', color: '#FFD700', amount: '1,250.00', sparkline: [40, 42, 38, 45, 50, 48, 55, 52, 58, 60], underlying: null, icon: null },
+    { symbol: 'USDC', name: 'USD Coin', color: '#2775CA', amount: '5,000.00', sparkline: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50], underlying: null, icon: 'usdc' },
+  ];
+
+  const staggerAnims = useRef(ASSET_WALLETS.map(() => new Animated.Value(0))).current;
   useEffect(() => {
-    setTimeout(() => setWalletsVisible(true), 300);
-    // Stagger wallet cards in
     const animations = staggerAnims.map((anim, i) =>
       Animated.spring(anim, { toValue: 1, friction: 7, tension: 40, delay: i * 80, useNativeDriver: true })
     );
@@ -81,28 +89,21 @@ export default function HomeScreen({ navigation }) {
   }, []);
 
   const { prices, lastUpdated, isLoading: pricesLoading } = useLivePrices();
-  const [showToast, setShowToast] = useState(false);
-
-  const portfolio = computePortfolio(prices, WALLETS);
+  const portfolio = computePortfolio(prices, ASSET_WALLETS);
 
   const onRefresh = async () => {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 1000);
   };
 
+  // FX conversion calculation
+  const fxFromRate = FX_CURRENCIES.find(c => c.code === fxFrom)?.rate || 1;
+  const fxToRate = FX_CURRENCIES.find(c => c.code === fxTo)?.rate || 1;
+  const fxResult = (parseFloat(fxAmount || '0') / fxFromRate * fxToRate).toFixed(2);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
-
-      {/* Toast notification */}
-      <ToastSlide
-        visible={showToast}
-        message="Portfolio up 0.53% today"
-        color="#1E95EA"
-        icon="📈"
-        duration={4000}
-        onDismiss={() => setShowToast(false)}
-      />
 
       <Animated.ScrollView
         style={styles.scrollView}
@@ -113,73 +114,41 @@ export default function HomeScreen({ navigation }) {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fff" />}
         stickyHeaderIndices={[0]}
       >
-        {/* ScreenHeader — always visible at top */}
-        <ScreenHeader pageName="Home" noBorder rightAction={
+        {/* Header */}
+        <ScreenHeader pageName="Flare Wallet" noBorder rightAction={
           <TouchableOpacity onPress={() => navigation.navigate('Profile')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} style={{ padding: 8 }}>
-            <Text style={{ color: '#FFF', fontSize: 20 }}>🔍</Text>
+            <Text style={{ color: '#FFF', fontSize: 20 }}>◉</Text>
           </TouchableOpacity>
         } />
 
-        {/* Gradient hero section with shimmer */}
-        <HeroShimmer height={200} duration={3000}>
-        <LinearGradient
-          colors={['#FF9F1C', '#FFC940', '#E8870C']}
-          style={styles.heroGradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0.3, y: 1 }}
-        >
-
-          {/* Total Balance */}
-          <Text style={styles.balanceLabel}>Total Balance</Text>
-          <CounterRoll
-            value={portfolio.totalBalance}
-            prefix="$"
-            fontSize={42}
-            fontWeight="700"
-            theme={{ text: '#FFFFFF' }}
-            style={{ alignSelf: 'center' }}
-          />
-          <View style={styles.changeRow}>
-            <Text style={[styles.changeAmount, { color: portfolio.changePercent >= 0 ? '#4CD964' : '#D4555A' }]}>
-              {portfolio.changePercent >= 0 ? '↑' : '↓'} ${Math.abs(portfolio.changeAmount).toFixed(2)}
-            </Text>
-            <Text style={[styles.changePercent, { color: portfolio.changePercent >= 0 ? '#4CD964' : '#D4555A' }]}>
-              ({portfolio.changePercent > 0 ? '+' : ''}{portfolio.changePercent.toFixed(2)}%)
-            </Text>
-          </View>
-
-          {/* Sparkline chart — data matches market direction */}
-          <SparklineChart
-            data={portfolio.changePercent >= 0
-              ? [40, 42, 38, 45, 50, 48, 55, 52, 58, 60, 55, 62]
-              : [62, 55, 58, 52, 48, 50, 45, 42, 40, 38, 35, 32]
-            }
-            width={280}
-            height={50}
-            color={portfolio.changePercent >= 0 ? '#4CD964' : '#D4555A'}
-            fillColor={portfolio.changePercent >= 0 ? 'rgba(76,217,100,0.12)' : 'rgba(212,85,90,0.12)'}
-            animated
-          />
-
-          {/* Time filters */}
-          <View style={styles.timeFilters}>
-            {TIME_FILTERS.map(f => (
-              <TouchableOpacity
-                key={f}
-                onPress={() => setTimeFilter(f)}
-                style={[styles.timeFilterBtn, timeFilter === f && styles.timeFilterActive]}
-              >
-                <Text style={[styles.timeFilterText, timeFilter === f && styles.timeFilterTextActive]}>
-                  {f}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+        {/* Hero — portfolio balance */}
+        <HeroShimmer height={180} duration={3000}>
+          <LinearGradient
+            colors={['#FF9F1C', '#FFC940', '#E8870C']}
+            style={styles.heroGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0.3, y: 1 }}
+          >
+            <Text style={styles.balanceLabel}>Total Balance</Text>
+            <CounterRoll
+              value={portfolio.totalBalance}
+              prefix="$"
+              fontSize={42}
+              fontWeight="700"
+              theme={{ text: '#FFFFFF' }}
+              style={{ alignSelf: 'center' }}
+            />
+            <View style={styles.changeRow}>
+              <Text style={[styles.changeAmount, { color: portfolio.changePercent >= 0 ? '#4CD964' : '#D4555A' }]}>
+                {portfolio.changePercent >= 0 ? '↑' : '↓'} ${Math.abs(portfolio.changeAmount).toFixed(2)}
+              </Text>
+              <Text style={[styles.changePercent, { color: portfolio.changePercent >= 0 ? '#4CD964' : '#D4555A' }]}>
+                ({portfolio.changePercent > 0 ? '+' : ''}{portfolio.changePercent.toFixed(2)}%)
+              </Text>
+            </View>
+            <Text style={styles.oracleTag}>⚡ Prices via Flare FTSOv2</Text>
           </LinearGradient>
         </HeroShimmer>
-
-        {/* Flare Wallet Hero */}
-        <HomeCardHero />
 
         {/* Tab bar */}
         <View style={styles.tabBar}>
@@ -194,139 +163,193 @@ export default function HomeScreen({ navigation }) {
           ))}
         </View>
 
-        {/* Wallet list */}
-        {homeTab === 'Wallets' && (
+        {/* Assets tab — Flare wallet list */}
+        {homeTab === 'Assets' && (
           <View style={styles.walletList}>
-            {WALLETS.map((wallet, idx) => {
+            {ASSET_WALLETS.map((wallet, idx) => {
               const token = TOKENS.find(t => t.symbol === wallet.symbol);
-              const livePrice = prices[wallet.symbol];
-              const displayPrice = livePrice ? livePrice.price : wallet.price;
-              const displayChange = livePrice ? livePrice.change24h : wallet.change;
+              const livePrice = prices[wallet.underlying || wallet.symbol];
+              const displayPrice = livePrice ? livePrice.price : 0;
+              const displayChange = livePrice ? livePrice.change24h : 0;
               const isPositive = displayChange >= 0;
               const cardAnim = staggerAnims[idx];
               const translateY = cardAnim.interpolate({ inputRange: [0, 1], outputRange: [30, 0] });
               const opacity = cardAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 1] });
               return (
                 <Animated.View key={wallet.symbol} style={{ transform: [{ translateY }], opacity }}>
-                <GlowPulse color={wallet.color} duration={2500} minOpacity={0.08} maxOpacity={0.2} radius={10} offsetY={2}>
-                <SpringPress
-                  onPress={() => navigation.navigate('WalletDetail', { symbol: wallet.symbol })}
-                >
-                  <View style={styles.walletCard}>
-                    {/* Left column: icon + coin amount */}
-                    <View style={styles.walletLeft}>
-                      {token ? (
-                        <TokenIcon token={token} size={44} />
-                      ) : (
-                        <View style={[styles.walletIconPlaceholder, { backgroundColor: wallet.color }]}>
-                          <Text style={styles.walletIconText}>{wallet.symbol.charAt(0)}</Text>
+                  <GlowPulse color={wallet.color} duration={2500} minOpacity={0.08} maxOpacity={0.2} radius={10} offsetY={2}>
+                    <SpringPress onPress={() => navigation.navigate('WalletDetail', { symbol: wallet.symbol })}>
+                      <View style={styles.walletCard}>
+                        <View style={styles.walletLeft}>
+                          {wallet.icon ? (
+                            <Image source={require(`../../assets/tokens/${wallet.icon}.png`)} style={styles.walletIcon} />
+                          ) : (
+                            <View style={[styles.walletIconPlaceholder, { backgroundColor: wallet.color }]}>
+                              <Text style={styles.walletIconText}>{wallet.symbol === 'FLR' ? '◉' : '✕'}</Text>
+                            </View>
+                          )}
+                          <View style={styles.walletInfo}>
+                            <Text style={styles.walletName}>{wallet.name}</Text>
+                            <Text style={styles.walletSymbol}>{wallet.amount} {wallet.symbol}</Text>
+                          </View>
                         </View>
-                      )}
-                      <View style={styles.walletInfo}>
-                        <Text style={styles.walletName}>{wallet.name}</Text>
-                        <Text style={styles.walletSymbol}>{wallet.amount} {wallet.symbol}</Text>
+                        <View style={styles.walletDivider} />
+                        <View style={styles.walletRight}>
+                          <View style={styles.walletChangeRow}>
+                            <SparklineChart
+                              data={wallet.sparkline || [40, 42, 38, 45, 50, 48]}
+                              width={40}
+                              height={20}
+                              color={isPositive ? '#4CD964' : '#D4555A'}
+                              fillColor={isPositive ? 'rgba(76,217,100,0.12)' : 'rgba(212,85,90,0.12)'}
+                              animated={false}
+                              style={{ marginRight: 6 }}
+                            />
+                            <Text style={[styles.walletChange, { color: isPositive ? '#4CD964' : '#D4555A' }]}>
+                              {isPositive ? '+' : ''}{displayChange.toFixed(2)}%
+                            </Text>
+                          </View>
+                          {displayPrice > 0 && (
+                            <Text style={styles.walletPrice}>
+                              ${displayPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </Text>
+                          )}
+                        </View>
                       </View>
-                    </View>
-
-                    {/* Vertical divider */}
-                    <View style={styles.walletDivider} />
-
-                    {/* Right column: sparkline + fiat price + % change */}
-                    <View style={styles.walletRight}>
-                      <View style={styles.walletChangeRow}>
-                        <SparklineChart
-                          data={wallet.sparkline || [40, 42, 38, 45, 50, 48]}
-                          width={40}
-                          height={20}
-                          color={isPositive ? '#4CD964' : '#D4555A'}
-                          fillColor={isPositive ? 'rgba(76,217,100,0.12)' : 'rgba(212,85,90,0.12)'}
-                          animated={false}
-                          style={{ marginRight: 6 }}
-                        />
-                        <Text style={[styles.walletChange, { color: isPositive ? '#4CD964' : '#D4555A' }]}>
-                          {isPositive ? '+' : ''}{displayChange.toFixed(2)}%
-                        </Text>
-                      </View>
-                      <Text style={styles.walletPrice}>
-                        ${displayPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                      </Text>
-                    </View>
-                  </View>
-                </SpringPress>
-                </GlowPulse>
+                    </SpringPress>
+                  </GlowPulse>
                 </Animated.View>
               );
             })}
           </View>
         )}
 
-        {/* Top News tab placeholder */}
-        {homeTab === 'Top News' && (
-          <View style={styles.emptyTab}>
-            <Text style={styles.emptyTabIcon}>📰</Text>
-            <Text style={styles.emptyTabText}>Market news coming soon</Text>
+        {/* FX tab — currency converter */}
+        {homeTab === 'FX' && (
+          <View style={styles.fxContainer}>
+            <View style={styles.fxCard}>
+              <Text style={styles.fxTitle}>Currency Converter</Text>
+              <Text style={styles.fxSubtitle}>Live rates via Flare FTSOv2</Text>
+
+              <View style={styles.fxRow}>
+                <View style={styles.fxInputWrap}>
+                  <Text style={styles.fxLabel}>Amount</Text>
+                  <TextInput
+                    style={styles.fxInput}
+                    value={fxAmount}
+                    onChangeText={setFxAmount}
+                    keyboardType="numeric"
+                    placeholder="100"
+                    placeholderTextColor="#8E8E93"
+                  />
+                </View>
+                <View style={styles.fxCurrencyWrap}>
+                  <Text style={styles.fxLabel}>From</Text>
+                  <TouchableOpacity style={styles.fxCurrencyBtn} onPress={() => { const t = fxFrom; setFxFrom(fxTo); setFxTo(t); }}>
+                    <Text style={styles.fxCurrencyFlag}>{FX_CURRENCIES.find(c => c.code === fxFrom)?.flag}</Text>
+                    <Text style={styles.fxCurrencyCode}>{fxFrom}</Text>
+                    <Text style={styles.fxSwapIcon}>⇄</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.fxDivider} />
+
+              <View style={styles.fxRow}>
+                <View style={styles.fxInputWrap}>
+                  <Text style={styles.fxLabel}>Converted</Text>
+                  <Text style={styles.fxResult}>{fxResult}</Text>
+                </View>
+                <View style={styles.fxCurrencyWrap}>
+                  <Text style={styles.fxLabel}>To</Text>
+                  <View style={styles.fxCurrencyBtn}>
+                    <Text style={styles.fxCurrencyFlag}>{FX_CURRENCIES.find(c => c.code === fxTo)?.flag}</Text>
+                    <Text style={styles.fxCurrencyCode}>{fxTo}</Text>
+                  </View>
+                </View>
+              </View>
+
+              <Text style={styles.fxRate}>
+                1 {fxFrom} = {(fxToRate / fxFromRate).toFixed(4)} {fxTo}
+              </Text>
+            </View>
+
+            {/* Currency picker grid */}
+            <Text style={styles.fxSectionTitle}>Currencies</Text>
+            <View style={styles.fxCurrencyGrid}>
+              {FX_CURRENCIES.map(c => (
+                <TouchableOpacity
+                  key={c.code}
+                  style={[styles.fxCurrencyChip, (fxFrom === c.code || fxTo === c.code) && styles.fxCurrencyChipActive]}
+                  onPress={() => setFxTo(c.code)}
+                >
+                  <Text style={styles.fxCurrencyChipFlag}>{c.flag}</Text>
+                  <Text style={styles.fxCurrencyChipCode}>{c.code}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         )}
 
-        {/* Connect tab placeholder */}
-        {homeTab === 'Connect' && (
-          <View style={styles.emptyTab}>
-            <Text style={styles.emptyTabIcon}>🔗</Text>
-            <Text style={styles.emptyTabText}>Connect with friends coming soon</Text>
+        {/* FAssets tab — interoperable assets info */}
+        {homeTab === 'FAssets' && (
+          <View style={styles.walletList}>
+            <View style={styles.fAssetInfoCard}>
+              <Text style={styles.fAssetInfoTitle}>FAssets — Interoperable Assets on Flare</Text>
+              <Text style={styles.fAssetInfoText}>
+                FAssets are trustless, over-collateralized wrapped tokens on Flare. Mint FXRP from XRP, FBTC from Bitcoin, FDOGE from Dogecoin — all backed by Flare's decentralized infrastructure.
+              </Text>
+            </View>
+            {FASSET_WALLETS.map((wallet, idx) => (
+              <View key={wallet.symbol} style={styles.walletCard}>
+                <View style={styles.walletLeft}>
+                  <View style={[styles.walletIconPlaceholder, { backgroundColor: wallet.color }]}>
+                    <Text style={styles.walletIconText}>{wallet.symbol === 'FLR' ? '◉' : 'F'}</Text>
+                  </View>
+                  <View style={styles.walletInfo}>
+                    <Text style={styles.walletName}>{wallet.name}</Text>
+                    <Text style={styles.walletSymbol}>{wallet.amount} {wallet.symbol}</Text>
+                  </View>
+                </View>
+                <View style={styles.walletDivider} />
+                <View style={styles.walletRight}>
+                  <Text style={styles.fAssetBadge}>
+                    {wallet.symbol === 'FLR' ? 'Native' : 'FAsset'}
+                  </Text>
+                </View>
+              </View>
+            ))}
           </View>
         )}
       </Animated.ScrollView>
-
     </SafeAreaView>
   );
 }
 
+import { TextInput } from 'react-native';
+
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#FF9F1C' },
   scrollView: { flex: 1 },
-  
-  // Hero gradient
   heroGradient: {
     paddingTop: 20,
     paddingHorizontal: 20,
-    paddingBottom: 8,
+    paddingBottom: 16,
   },
-  
-  // Title - Flare wallet big title
-  
-  // Balance
   balanceLabel: { color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 4 },
-  changeRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 },
+  changeRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 },
   changeAmount: { fontSize: 16, fontWeight: '600' },
   changePercent: { fontSize: 14, fontWeight: '500' },
-  
-  // Time filters
-  timeFilters: {
-    flexDirection: 'row', gap: 8, marginBottom: 4,
-  },
-  timeFilterBtn: {
-    paddingHorizontal: 14, paddingVertical: 6, borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-  },
-  timeFilterActive: { backgroundColor: '#FFFFFF' },
-  timeFilterText: { color: '#FFF', fontSize: 13, fontWeight: '600' },
-  timeFilterTextActive: { color: '#FF9F1C' },
-  
-  // Tab bar
+  oracleTag: { color: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: '500', marginTop: 4 },
   tabBar: {
     flexDirection: 'row', backgroundColor: '#F2F2F7',
     paddingHorizontal: 20, paddingTop: 12, paddingBottom: 4,
     borderBottomWidth: 0.5, borderBottomColor: '#E5E5EA',
   },
-  tabBtn: {
-    paddingHorizontal: 16, paddingVertical: 8, marginRight: 4,
-    borderRadius: 20, backgroundColor: '#E5E5EA',
-  },
+  tabBtn: { paddingHorizontal: 16, paddingVertical: 8, marginRight: 4, borderRadius: 20, backgroundColor: '#E5E5EA' },
   tabActive: { backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 4, elevation: 2 },
   tabText: { fontSize: 14, fontWeight: '600', color: '#8E8E93' },
-  tabTextActive: { color: '#1C1C1E' },
-  
-  // Wallet list
+  tabTextActive: { color: '#FF9F1C' },
   walletList: { backgroundColor: '#F2F2F7', paddingHorizontal: 16, paddingTop: 8, paddingBottom: 20 },
   walletCard: {
     flexDirection: 'row', alignItems: 'center',
@@ -336,10 +359,8 @@ const styles = StyleSheet.create({
   walletLeft: { flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 10 },
   walletDivider: { width: 1, alignSelf: 'stretch', backgroundColor: '#E5E5EA', marginHorizontal: 10 },
   walletRight: { flex: 1, alignItems: 'flex-end', paddingLeft: 10 },
-  walletIconPlaceholder: {
-    width: 44, height: 44, borderRadius: 22,
-    alignItems: 'center', justifyContent: 'center',
-  },
+  walletIcon: { width: 44, height: 44, borderRadius: 22, resizeMode: 'contain' },
+  walletIconPlaceholder: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   walletIconText: { color: '#FFF', fontSize: 18, fontWeight: '700' },
   walletInfo: { marginLeft: 12 },
   walletName: { fontSize: 16, fontWeight: '700', color: '#1C1C1E' },
@@ -347,9 +368,32 @@ const styles = StyleSheet.create({
   walletPrice: { fontSize: 16, fontWeight: '700', color: '#1C1C1E' },
   walletChangeRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   walletChange: { fontSize: 12, fontWeight: '600' },
-  
-  // Empty tabs
-  emptyTab: { backgroundColor: '#F2F2F7', paddingVertical: 60, alignItems: 'center' },
-  emptyTabIcon: { fontSize: 40, marginBottom: 12 },
-  emptyTabText: { fontSize: 16, color: '#8E8E93', fontWeight: '500' },
+  // FX tab
+  fxContainer: { backgroundColor: '#F2F2F7', paddingHorizontal: 16, paddingTop: 16 },
+  fxCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, marginBottom: 16 },
+  fxTitle: { fontSize: 18, fontWeight: '700', color: '#1C1C1E', marginBottom: 4 },
+  fxSubtitle: { fontSize: 12, color: '#FF9F1C', fontWeight: '600', marginBottom: 16 },
+  fxRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  fxInputWrap: { flex: 1, marginRight: 12 },
+  fxLabel: { fontSize: 11, color: '#8E8E93', fontWeight: '600', marginBottom: 4 },
+  fxInput: { fontSize: 24, fontWeight: '700', color: '#1C1C1E', paddingVertical: 4 },
+  fxResult: { fontSize: 24, fontWeight: '700', color: '#FF9F1C', paddingVertical: 4 },
+  fxCurrencyWrap: { width: 100 },
+  fxCurrencyBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F2F2F7', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 12 },
+  fxCurrencyFlag: { fontSize: 20 },
+  fxCurrencyCode: { fontSize: 14, fontWeight: '700', color: '#1C1C1E' },
+  fxSwapIcon: { fontSize: 16, color: '#8E8E93', marginLeft: 4 },
+  fxDivider: { height: 1, backgroundColor: '#E5E5EA', marginVertical: 14 },
+  fxRate: { fontSize: 12, color: '#8E8E93', fontWeight: '500', marginTop: 12 },
+  fxSectionTitle: { fontSize: 14, fontWeight: '700', color: '#8E8E93', marginBottom: 8 },
+  fxCurrencyGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingBottom: 20 },
+  fxCurrencyChip: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#FFFFFF', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
+  fxCurrencyChipActive: { backgroundColor: '#FF9F1C' },
+  fxCurrencyChipFlag: { fontSize: 16 },
+  fxCurrencyChipCode: { fontSize: 13, fontWeight: '600', color: '#1C1C1E' },
+  // FAssets tab
+  fAssetInfoCard: { backgroundColor: '#FFFFFF', borderRadius: 14, padding: 16, marginBottom: 16, borderLeftWidth: 3, borderLeftColor: '#FF9F1C' },
+  fAssetInfoTitle: { fontSize: 15, fontWeight: '700', color: '#1C1C1E', marginBottom: 6 },
+  fAssetInfoText: { fontSize: 13, color: '#8E8E93', lineHeight: 18 },
+  fAssetBadge: { fontSize: 11, fontWeight: '600', color: '#FF9F1C', backgroundColor: 'rgba(255,159,28,0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
 });
