@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Image } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { useLivePrices } from '../../services/LivePriceService';
 import { CATEGORIES, MOCK_LISTINGS, formatFlrPrice, getTypeColor, LISTING_TYPES } from '../../constants/marketplace';
@@ -20,7 +20,7 @@ export default function MarketplaceScreen({ navigation }) {
     return matchesSearch && matchesCat;
   });
 
-  const renderListing = ({ item }) => {
+  const renderListing = (item) => {
     const priceFmt = formatFlrPrice(item.priceFlr, flrPrice);
     const typeColor = getTypeColor(item.type);
     const buyNowFmt = item.buyNowFlr ? formatFlrPrice(item.buyNowFlr, flrPrice) : null;
@@ -28,14 +28,11 @@ export default function MarketplaceScreen({ navigation }) {
     const highestFmt = formatFlrPrice(highestBid, flrPrice);
 
     return (
-      <SpringPress onPress={() => navigation.navigate('ListingDetail', { id: item.id })} activeScale={0.97}>
+      <SpringPress key={item.id} onPress={() => navigation.navigate('ListingDetail', { id: item.id })} activeScale={0.97}>
         <View style={styles.listingCard}>
-          {/* Image placeholder */}
           <View style={styles.listingImage}>
             <Image source={{ uri: item.image }} style={styles.listingImageObj} resizeMode="cover" />
           </View>
-
-          {/* Content */}
           <View style={styles.listingContent}>
             <View style={styles.listingHeader}>
               <Text style={styles.listingTitle} numberOfLines={2}>{item.title}</Text>
@@ -43,10 +40,7 @@ export default function MarketplaceScreen({ navigation }) {
                 <Text style={[styles.typeBadgeText, { color: typeColor }]}>{LISTING_TYPES[item.type]}</Text>
               </View>
             </View>
-
             <Text style={styles.sellerName}>{item.seller.name} · ⭐ {item.seller.rating} ({item.seller.sales} sales)</Text>
-
-            {/* Price */}
             <View style={styles.priceRow}>
               {item.type === 'fixed' && (
                 <View>
@@ -69,14 +63,8 @@ export default function MarketplaceScreen({ navigation }) {
                 </View>
               )}
             </View>
-
-            {/* Time left or fee badge */}
             <View style={styles.listingFooter}>
-              {item.timeLeft ? (
-                <Text style={styles.timeLeft}>⏱ {item.timeLeft}</Text>
-              ) : (
-                <Text style={styles.timeLeft}>Available</Text>
-              )}
+              {item.timeLeft ? <Text style={styles.timeLeft}>⏱ {item.timeLeft}</Text> : <Text style={styles.timeLeft}>Available</Text>}
               <Text style={styles.feeBadge}>🔥 1% fee · 50% burned</Text>
             </View>
           </View>
@@ -88,8 +76,8 @@ export default function MarketplaceScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <ScreenHeader title="Marketplace" subtitle="Buy & sell on Flare" />
-      <View style={styles.content}>
-        {/* Search */}
+      {/* Fixed header section — search + categories */}
+      <View style={styles.headerSection}>
         <View style={styles.searchRow}>
           <TextInput
             style={styles.searchInput}
@@ -102,110 +90,62 @@ export default function MarketplaceScreen({ navigation }) {
             <Text style={styles.sellBtnText}>+ Sell</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Categories */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catRow}>
-          {CATEGORIES.map(cat => (
-            <TouchableOpacity
-              key={cat.id}
-              style={[styles.catChip, activeCategory === cat.id && styles.catChipActive]}
-              onPress={() => setActiveCategory(cat.id)}
-            >
-              <Text style={[styles.catLabel, activeCategory === cat.id && styles.catLabelActive]}>{cat.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {/* Listings */}
+        <View style={styles.catRow}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {CATEGORIES.map(cat => (
+              <TouchableOpacity
+                key={cat.id}
+                style={[styles.catChip, activeCategory === cat.id && styles.catChipActive]}
+                onPress={() => setActiveCategory(cat.id)}
+              >
+                <Text style={[styles.catLabel, activeCategory === cat.id && styles.catLabelActive]}>{cat.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
         <Text style={styles.resultCount}>{filtered.length} listings</Text>
-        <ScrollView style={styles.listScroll} showsVerticalScrollIndicator={false}>
-          {filtered.map(item => {
-            const priceFmt = formatFlrPrice(item.priceFlr, flrPrice);
-            const typeColor = getTypeColor(item.type);
-            const buyNowFmt = item.buyNowFlr ? formatFlrPrice(item.buyNowFlr, flrPrice) : null;
-            const highestBid = item.bids.length > 0 ? item.bids[item.bids.length - 1].amount : item.priceFlr;
-            const highestFmt = formatFlrPrice(highestBid, flrPrice);
-            return (
-              <SpringPress key={item.id} onPress={() => navigation.navigate('ListingDetail', { id: item.id })} activeScale={0.97}>
-                <View style={styles.listingCard}>
-                  <View style={styles.listingImage}>
-                    <Image source={{ uri: item.image }} style={styles.listingImageObj} resizeMode="cover" />
-                  </View>
-                  <View style={styles.listingContent}>
-                    <View style={styles.listingHeader}>
-                      <Text style={styles.listingTitle} numberOfLines={2}>{item.title}</Text>
-                      <View style={[styles.typeBadge, { backgroundColor: typeColor + '20', borderColor: typeColor }]}>
-                        <Text style={[styles.typeBadgeText, { color: typeColor }]}>{LISTING_TYPES[item.type]}</Text>
-                      </View>
-                    </View>
-                    <Text style={styles.sellerName}>{item.seller.name} · ⭐ {item.seller.rating} ({item.seller.sales} sales)</Text>
-                    <View style={styles.priceRow}>
-                      {item.type === 'fixed' && (
-                        <View>
-                          <Text style={styles.priceFlr}>{priceFmt.flr}</Text>
-                          <Text style={styles.priceUsd}>≈ {priceFmt.usd}</Text>
-                        </View>
-                      )}
-                      {item.type === 'auction' && (
-                        <View>
-                          <Text style={styles.priceLabel}>Highest Bid</Text>
-                          <Text style={styles.priceFlr}>{highestFmt.flr}</Text>
-                          <Text style={styles.priceUsd}>≈ {highestFmt.usd}</Text>
-                        </View>
-                      )}
-                      {item.type === 'hybrid' && (
-                        <View>
-                          <Text style={styles.priceFlr}>{highestFmt.flr}</Text>
-                          <Text style={styles.priceUsd}>≈ {highestFmt.usd}</Text>
-                          {buyNowFmt && <Text style={styles.buyNowText}>Buy Now: {buyNowFmt.flr}</Text>}
-                        </View>
-                      )}
-                    </View>
-                    <View style={styles.listingFooter}>
-                      {item.timeLeft ? <Text style={styles.timeLeft}>⏱ {item.timeLeft}</Text> : <Text style={styles.timeLeft}>Available</Text>}
-                      <Text style={styles.feeBadge}>🔥 1% fee · 50% burned</Text>
-                    </View>
-                  </View>
-                </View>
-              </SpringPress>
-            );
-          })}
-          <View style={{ height: 20 }} />
-        </ScrollView>
       </View>
+      {/* Scrollable listing area — takes all remaining space */}
+      <ScrollView style={styles.listScroll} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+        {filtered.map(item => renderListing(item))}
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  content: { flex: 1, padding: 16 },
-  searchRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
-  searchInput: { flex: 1, backgroundColor: Colors.surface, borderRadius: 12, padding: 14, fontSize: 15, borderWidth: 1, borderColor: Colors.border },
-  sellBtn: { backgroundColor: Colors.primary, borderRadius: 12, paddingHorizontal: 20, justifyContent: 'center' },
-  sellBtnText: { color: '#FFF', fontSize: 15, fontWeight: '700' },
-  catRow: { flexDirection: 'row', marginBottom: 12, flex: 0, flexShrink: 0, height: 36 },
-  catChip: { borderRadius: 18, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, marginRight: 8, height: 36, width: 90, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  // Fixed header section
+  headerSection: { paddingHorizontal: 16, paddingTop: 8 },
+  searchRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
+  searchInput: { flex: 1, backgroundColor: Colors.surface, borderRadius: 12, padding: 12, fontSize: 15, borderWidth: 1, borderColor: Colors.border },
+  sellBtn: { backgroundColor: Colors.primary, borderRadius: 12, paddingHorizontal: 16, justifyContent: 'center' },
+  sellBtnText: { color: '#FFF', fontSize: 14, fontWeight: '700' },
+  // Categories — fixed height, horizontal scroll
+  catRow: { height: 36, marginBottom: 4 },
+  catChip: { borderRadius: 18, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, marginRight: 8, height: 36, width: 90, alignItems: 'center', justifyContent: 'center' },
   catChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  catLabel: { fontSize: 13, fontWeight: '600', color: Colors.text },
+  catLabel: { fontSize: 12, fontWeight: '600', color: Colors.text },
   catLabelActive: { color: '#FFF' },
-  resultCount: { fontSize: 13, color: Colors.textMuted, marginBottom: 8, fontWeight: '500' },
-  listScroll: { flex: 1 },
-  listingCard: { flexDirection: 'row', backgroundColor: Colors.surface, borderRadius: 16, marginBottom: 10, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden' },
-  listingImage: { width: 90, height: 110, backgroundColor: Colors.creamDark, overflow: 'hidden' },
+  resultCount: { fontSize: 12, color: Colors.textMuted, marginBottom: 4, fontWeight: '500' },
+  // Scrollable list — flex:1 fills remaining space
+  listScroll: { flex: 1, paddingHorizontal: 16 },
+  // Listing cards
+  listingCard: { flexDirection: 'row', backgroundColor: Colors.surface, borderRadius: 14, marginBottom: 8, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden' },
+  listingImage: { width: 80, height: 100, backgroundColor: Colors.creamDark, overflow: 'hidden' },
   listingImageObj: { width: '100%', height: '100%' },
-  listingContent: { flex: 1, padding: 12 },
+  listingContent: { flex: 1, padding: 10 },
   listingHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 },
-  listingTitle: { fontSize: 14, fontWeight: '700', color: Colors.text, flex: 1, marginRight: 8 },
-  typeBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, borderWidth: 1 },
-  typeBadgeText: { fontSize: 10, fontWeight: '700' },
-  sellerName: { fontSize: 11, color: Colors.textMuted, marginBottom: 8 },
-  priceRow: { marginBottom: 8 },
-  priceLabel: { fontSize: 10, color: Colors.textMuted, fontWeight: '500' },
-  priceFlr: { fontSize: 16, fontWeight: '800', color: Colors.primary },
-  priceUsd: { fontSize: 12, color: Colors.textSecondary },
-  buyNowText: { fontSize: 11, color: Colors.deepOrange, fontWeight: '600', marginTop: 2 },
+  listingTitle: { fontSize: 13, fontWeight: '700', color: Colors.text, flex: 1, marginRight: 6 },
+  typeBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1 },
+  typeBadgeText: { fontSize: 9, fontWeight: '700' },
+  sellerName: { fontSize: 10, color: Colors.textMuted, marginBottom: 6 },
+  priceRow: { marginBottom: 6 },
+  priceLabel: { fontSize: 9, color: Colors.textMuted, fontWeight: '500' },
+  priceFlr: { fontSize: 15, fontWeight: '800', color: Colors.primary },
+  priceUsd: { fontSize: 11, color: Colors.textSecondary },
+  buyNowText: { fontSize: 10, color: Colors.deepOrange, fontWeight: '600', marginTop: 2 },
   listingFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  timeLeft: { fontSize: 11, color: Colors.textMuted, fontWeight: '600' },
-  feeBadge: { fontSize: 9, color: Colors.primary, fontWeight: '600' },
+  timeLeft: { fontSize: 10, color: Colors.textMuted, fontWeight: '600' },
+  feeBadge: { fontSize: 8, color: Colors.primary, fontWeight: '600' },
 });
