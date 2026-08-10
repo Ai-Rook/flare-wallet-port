@@ -1,8 +1,8 @@
-# 🔥 Flare Wallet — Built on Flare FTSOv2
+# 🔥 Flare Wallet + Marketplace — Built on Flare FTSOv2
 
-A mobile-first crypto wallet for the Flare ecosystem. Live FTSOv2 oracle prices, FAsset support, on-chain balances, and a block scanner — all on Coston2 testnet.
+A mobile-first crypto wallet and marketplace built on Flare's native protocols. Live FTSOv2 oracle prices, FAsset support, on-chain balances, a block scanner, a P2P marketplace with 1% burn/philanthropy fees, and Flare Confidential Compute (FCC) for dispute resolution and sealed-bid auctions.
 
-**Built for the Flare Summer Signal Hackathon** · Bounty 1: Interoperable Asset Products
+**Built for the Flare Summer Signal Hackathon** · Bounty 1: Interoperable Asset Products + Bounty 2: Confidential Compute Apps
 
 ## 🌐 Demo
 
@@ -12,28 +12,36 @@ A mobile-first crypto wallet for the Flare ecosystem. Live FTSOv2 oracle prices,
 
 ## ✨ Features
 
-### Live FTSOv2 Oracle Integration
-- Real-time price feeds for 8 assets: FLR, BTC, ETH, XRP, DOGE, LTC, SOL, ADA
-- Prices fetched directly from the FTSOv2 contract on Coston2 via a CORS-safe proxy
-- Updates every 30 seconds in the app
-- Source badge shows "🔥 Live FTSOv2 Oracle" when connected
+### Wallet (Bounty 1 — Interoperable Asset Products)
+- **Live FTSOv2 Oracle** — real-time price feeds for 8 assets (FLR, BTC, ETH, XRP, DOGE, LTC, SOL, ADA) via `getFeedsById()` on the FTSOv2 contract
+- **FAsset Support** — FXRP token integration via FlareContractsRegistry runtime resolver
+- **On-Chain Balances** — native FLR + ERC-20 balance queries from Coston2 RPC
+- **Block Scanner** — live block height, gas price, recent 5 blocks with tx counts
+- **Swap** — live conversion rates computed from FTSOv2 oracle prices
+- **QR Code Receive** — wallet address QR with finder patterns
 
-### FAsset Support
-- FXRP (Flare XRP) token integration via FlareContractsRegistry
-- Runtime FAsset resolver — queries registry → AssetManager → fAsset() for any new assets
-- Send FAsset functionality wired (sendFAsset helper in FlareWalletService)
-- FBTC/FDOGE not yet deployed on Coston2 — app handles this gracefully
+### Marketplace (Bounty 1 — Product Usefulness)
+- **Browse + Search** — 8 demo listings across 6 categories with real product images
+- **3 Listing Types** — Fixed Price, Auction (3/5/7 day), Hybrid (Buy It Now + Auction)
+- **Reserve Price** — optional, costs 0.5% extra listing fee
+- **1% Fee Rake** — 50% burned (deflationary), 50% to Flare philanthropy fund
+- **Live FTSO Pricing** — every listing shows price in FLR + live USD equivalent
+- **Create Listing Flow** — full seller form with type, duration, reserve, live USD preview
+- **eBay Comparison** — "eBay 13-30% · we charge 1% · save 29%+"
 
-### On-Chain Wallet
-- Real balance queries from Coston2 RPC (native FLR + ERC-20 tokens)
-- Block scanner with live block height, gas price, and recent blocks
-- Transaction history via RPC log queries (ERC-20 Transfer events)
-- Demo wallet address for hackathon testing
+### Confidential Compute (Bounty 2 — FCC Integration)
+- **FlareTeeManager** — references live contract `0x1a9C4A0f9D76c0b1D91d22E24E573a9b377618aE`
+- **SIMULATED_TEE** — accepted for Coston2 judging per sponsor confirmation
+- **TEE Dispute Resolution** — marketplace disputes arbitrated inside enclave, only verdict + attestation published
+- **Sealed-Bid Auctions** — bids collected in TEE, winner computed privately, prevents sniping/collusion
+- **Private AI Agent** — trading strategy execution inside enclave with RA-TLS attestation
+- **4 FCC Capabilities** — Protocol Managed Wallets, Verifiable AI Agents, Private Screening, Multi-Agent Consensus
 
-### Sunkist Orange Soda Design System
-- Custom orange pencil-outline token icons (zero clip art)
-- Warm cream backgrounds, orange gradients, fizz bubble animations
-- Consistent across all 7 tab screens + 12 stack screens
+### Design
+- **Sunkist Orange Soda Theme** — custom orange pencil-outline token icons (zero clip art)
+- **FizzBubbles** — animated rising carbonation bubbles in headers
+- **PulseFAB** — glossy soda button with carbonation press effect
+- **Consistent** — all 8 tab screens + 14 stack screens use the same palette
 
 ## 🔧 Technical Architecture
 
@@ -42,50 +50,68 @@ A mobile-first crypto wallet for the Flare ecosystem. Live FTSOv2 oracle prices,
 |----------|---------|
 | FTSOv2 | `0x3d893C53D9e8056135C26C8c638B76C8b60Df726` |
 | FlareContractsRegistry | `0xaD67FE66660Fb8dFE9d6b1b4240d8650e30F6019` |
-| FXRP Token | `0x0b6A3645c240605887a5532109323A3E12273dc7` |
+| FXRP Token (ERC-20) | `0x0b6A3645c240605887a5532109323A3E12273dc7` |
+| FlareTeeManager (FCC) | `0x1a9C4A0f9D76c0b1D91d22E24E573a9b377618aE` |
 
-### Backend Proxy (VPS)
-- **Port 3052** — standalone Express server (pm2 managed)
-- `/api/ftso-prices` — FTSOv2 price feed relay
-- `/api/balance/:address` — on-chain balance queries (native + ERC-20)
+### Backend Proxy (VPS — port 3052, pm2 managed)
+- `/api/ftso-prices` — FTSOv2 price feed relay (8 assets)
+- `/api/balance/:address` — native + ERC-20 balance queries
 - `/api/blockscanner` — live block data (height, gas, recent blocks)
 - `/api/txs/:address` — transaction history via Transfer event logs
 
 ### Frontend
 - React Native + Expo (web export)
 - ethers.js v6 for blockchain interaction
-- LivePriceService React Context — manages price state, balance hooks, block scanner
+- LivePriceService React Context — prices, balances, block scanner, tx history hooks
 - Single source of truth: `constants/holdings.js` for wallet data reconciliation
+- `constants/marketplace.js` — listing types, fee structure, mock data
 
 ## 📋 How It Uses Flare
 
-1. **FTSOv2 Oracle** — The core price feed. We call `getFeedsById(bytes21[])` on the FTSOv2 contract to get live USD prices for 8 assets. This is not a fallback or demo — the proxy queries the actual Coston2 oracle every 30 seconds.
-
-2. **FAssets** — We resolve FAsset contract addresses via the FlareContractsRegistry, then query ERC-20 balances directly. FXRP is the only FAsset currently on Coston2; the app is built to handle FBTC/FDOGE when they deploy.
-
-3. **Coston2 Testnet** — All on-chain reads (balances, block scanner, transaction history) hit the Coston2 RPC directly. The block scanner shows real block heights and gas prices from the network.
+1. **FTSOv2 Oracle** — Core price feed. `getFeedsById(bytes21[])` called on the FTSOv2 contract. 8 live feeds, 30-second refresh, CORS-safe VPS proxy.
+2. **FAssets** — Runtime contract resolution via FlareContractsRegistry → AssetManager → `fAsset()` → ERC-20 `balanceOf()`. FXRP live on Coston2.
+3. **Coston2 Testnet** — All on-chain reads (balances, block scanner, tx history) hit Coston2 RPC directly.
+4. **Flare Confidential Compute** — FlareTeeManager integration, SIMULATED_TEE mode, dispute resolution + sealed-bid auctions as marketplace features.
+5. **Marketplace Economics** — 1% rake per sale, 50% burned to deflationary address, 50% to Flare philanthropy fund. All pricing in FLR with live FTSO USD conversion.
 
 ## 🆕 What Was Built During the Hackathon
 
-This project was forked from a base wallet template. The following were built entirely during the hackathon:
+### Smart Contract Integration
+- FTSOv2 oracle proxy (4 endpoints)
+- FAsset contract resolution via FlareContractsRegistry
+- FXRP ERC-20 balance queries
+- Block scanner + transaction history via RPC
 
-- **FTSOv2 integration** — proxy server, feed ID encoding, live price context
-- **FAsset resolver** — runtime contract address resolution via FlareContractsRegistry
-- **Block scanner** — live block data endpoint + UI with auto-refresh
-- **On-chain balance queries** — native + ERC-20 balance endpoint
-- **Transaction history** — Transfer event log queries
-- **Sunkist orange soda design system** — colors, icons, animations, all custom
-- **All 7 tab screens** — Wallet, Agentic AI, Markets, Cards, Rewards, Profile, Home
-- **Stack screens** — Send, Receive, BuySell, WalletDetail (all rebuilt with Sunkist theme)
+### Wallet (All New)
+- LivePriceService React Context
+- FlareTokenIcon — custom orange pencil-outline icons
+- Sunkist design system (colors, fizz bubbles, gradient headers)
+- All wallet screens: Home, Wallet, WalletDetail, Send, Receive, BuySell, Swap
+- Block scanner on Agent tab
+- On-chain balance display with live FTSO prices
+
+### Marketplace (All New)
+- MarketplaceScreen — browse, search, category filters
+- ListingDetailScreen — bid history, fee breakdown, payment options
+- CreateListingScreen — full seller flow with auction types + reserve
+- Fee mechanism — 1% rake, 50/50 burn/philanthropy split
+
+### FCC Tab (All New)
+- Secure Enclave toggle with INITIALIZED → PRODUCTION status
+- RA-TLS attestation generator
+- TEE Dispute Resolution — arbitration cases with AI verdict + attestation
+- Sealed-Bid Auctions — encrypted bids, reveal winner, comparison table
+- Private AI Agent prompt
 
 ## 🗺️ Roadmap
 
-1. **Wallet connect** — let users import their own wallet via private key / seed phrase / WalletConnect
-2. **Real FAsset minting** — XRPL payment to Core Vault with 32-byte memo for FXRP minting
-3. **FTSO delegation** — delegate FLR vote power to data providers from within the app
-4. **Mainnet deployment** — deploy on Flare Mainnet when FAssets go live
-5. **Mobile native** — Expo → iOS/Android native builds
-6. **Confidential Compute** — explore Flare's FCC for private transactions
+1. **Escrow smart contract** — deploy on Coston2 for real Buy Now transactions
+2. **WalletConnect** — import user wallets
+3. **FTSO delegation** — delegate FLR vote power from the app
+4. **Real TEE deployment** — GCP Confidential Space integration
+5. **Mainnet deployment** — when FAssets go live
+6. **Mobile native** — iOS/Android builds
+7. **Multi-agent consensus** — A2A protocol for trade voting
 
 ## 📦 GitHub
 
@@ -93,11 +119,11 @@ This project was forked from a base wallet template. The following were built en
 
 ## 🏆 Hackathon
 
-- **Event:** Flare Summer Signal
-- **Bounty:** Interoperable Asset Products ($4,000 1st prize)
+- **Event:** Flare Summer Signal (DoraHacks)
+- **Bounties:** Interoperable Asset Products + Confidential Compute Apps
 - **Deadline:** August 14, 2026
-- **Platform:** DoraHacks
+- **Network:** Coston2 Testnet
 
 ---
 
-🔥 Built on Flare · FTSOv2 Oracle · FAssets · Coston2 Testnet
+🔥 Built on Flare · FTSOv2 Oracle · FAssets · Confidential Compute · Marketplace
