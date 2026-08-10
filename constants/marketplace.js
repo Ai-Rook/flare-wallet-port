@@ -30,7 +30,8 @@ export const MOCK_LISTINGS = [
     description: 'Mint condition Mac Studio M4 Max. 128GB unified memory. Original box included. Less than 3 months old.',
     category: 'electronics',
     type: 'fixed',
-    priceFlr: 92500, // ~$560 at $0.006/FLR
+    priceFlr: 92500,
+    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=200&h=250&fit=crop', // ~$560 at $0.006/FLR
     seller: { name: 'TechFlare', rating: 4.9, sales: 127 },
     timeLeft: null,
     bids: [],
@@ -42,7 +43,8 @@ export const MOCK_LISTINGS = [
     description: 'PSA 9 Mint. 1999 Base Set Charizard. One of the most iconic collectible cards.',
     category: 'collectibles',
     type: 'auction',
-    priceFlr: 18500, // starting price
+    priceFlr: 18500,
+    image: 'https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?w=200&h=250&fit=crop', // starting price
     seller: { name: 'CardKing', rating: 5.0, sales: 43 },
     timeLeft: '2d 14h',
     bids: [
@@ -57,7 +59,8 @@ export const MOCK_LISTINGS = [
     description: '1-of-1 digital artwork. Orange gradient sunset over Flare network nodes. High-res PNG + NFT receipt.',
     category: 'art',
     type: 'hybrid',
-    priceFlr: 4200, // auction start
+    priceFlr: 4200,
+    image: 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=200&h=250&fit=crop', // auction start
     buyNowFlr: 8500,
     seller: { name: 'ArtOnFlare', rating: 4.7, sales: 12 },
     timeLeft: '5d 3h',
@@ -72,7 +75,8 @@ export const MOCK_LISTINGS = [
     description: '2005 Rolex Submariner. Serial verified. Recently serviced. Box and papers included.',
     category: 'fashion',
     type: 'fixed',
-    priceFlr: 1250000, // ~$7,500
+    priceFlr: 1250000,
+    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&h=250&fit=crop', // ~$7,500
     seller: { name: 'LuxFlare', rating: 4.95, sales: 89 },
     timeLeft: null,
     bids: [],
@@ -85,6 +89,7 @@ export const MOCK_LISTINGS = [
     category: 'electronics',
     type: 'auction',
     priceFlr: 52000,
+    image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=200&h=250&fit=crop',
     seller: { name: 'PhotoPro', rating: 4.8, sales: 34 },
     timeLeft: '6d 22h',
     bids: [
@@ -100,6 +105,7 @@ export const MOCK_LISTINGS = [
     category: 'home',
     type: 'fixed',
     priceFlr: 3800,
+    image: 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=200&h=250&fit=crop',
     seller: { name: 'CraftFlare', rating: 4.6, sales: 8 },
     timeLeft: null,
     bids: [],
@@ -112,6 +118,7 @@ export const MOCK_LISTINGS = [
     category: 'other',
     type: 'hybrid',
     priceFlr: 6200,
+    image: 'https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=200&h=250&fit=crop',
     buyNowFlr: 12000,
     seller: { name: 'HODLware', rating: 4.85, sales: 56 },
     timeLeft: '4d 8h',
@@ -128,6 +135,7 @@ export const MOCK_LISTINGS = [
     category: 'fashion',
     type: 'auction',
     priceFlr: 310000,
+    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&h=250&fit=crop',
     seller: { name: 'SoleFlare', rating: 4.9, sales: 23 },
     timeLeft: '1d 2h',
     bids: [

@@ -32,7 +32,7 @@ export default function MarketplaceScreen({ navigation }) {
         <View style={styles.listingCard}>
           {/* Image placeholder */}
           <View style={styles.listingImage}>
-            <Text style={styles.listingLetter}>{item.title[0]}</Text>
+            <Image source={{ uri: item.image }} style={styles.listingImageObj} resizeMode="cover" />
           </View>
 
           {/* Content */}
@@ -138,14 +138,14 @@ const styles = StyleSheet.create({
   sellBtn: { backgroundColor: Colors.primary, borderRadius: 12, paddingHorizontal: 20, justifyContent: 'center' },
   sellBtnText: { color: '#FFF', fontSize: 15, fontWeight: '700' },
   catRow: { flexDirection: 'row', marginBottom: 12 },
-  catChip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, marginRight: 8 },
+  catChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, marginRight: 8, minWidth: 80, alignItems: 'center', justifyContent: 'center' },
   catChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   catLabel: { fontSize: 13, fontWeight: '600', color: Colors.text },
   catLabelActive: { color: '#FFF' },
   resultCount: { fontSize: 13, color: Colors.textMuted, marginBottom: 8, fontWeight: '500' },
   listingCard: { flexDirection: 'row', backgroundColor: Colors.surface, borderRadius: 16, marginBottom: 10, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden' },
-  listingImage: { width: 80, height: 100, backgroundColor: Colors.primary + '12', justifyContent: 'center', alignItems: 'center', borderRightWidth: 0 },
-  listingLetter: { fontSize: 32, fontWeight: '800', color: Colors.primary },
+  listingImage: { width: 90, height: 110, backgroundColor: Colors.creamDark, overflow: 'hidden' },
+  listingImageObj: { width: '100%', height: '100%' },
   listingContent: { flex: 1, padding: 12 },
   listingHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 },
   listingTitle: { fontSize: 14, fontWeight: '700', color: Colors.text, flex: 1, marginRight: 8 },
