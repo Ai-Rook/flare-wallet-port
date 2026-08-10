@@ -118,15 +118,60 @@ export default function MarketplaceScreen({ navigation }) {
 
         {/* Listings */}
         <Text style={styles.resultCount}>{filtered.length} listings</Text>
-        <View style={styles.listContainer}>
-          <FlatList
-            data={filtered}
-            renderItem={renderListing}
-            keyExtractor={item => String(item.id)}
-            contentContainerStyle={{ paddingBottom: 20 }}
-            showsVerticalScrollIndicator={false}
-          />
-        </View>
+        <ScrollView style={styles.listScroll} showsVerticalScrollIndicator={false}>
+          {filtered.map(item => {
+            const priceFmt = formatFlrPrice(item.priceFlr, flrPrice);
+            const typeColor = getTypeColor(item.type);
+            const buyNowFmt = item.buyNowFlr ? formatFlrPrice(item.buyNowFlr, flrPrice) : null;
+            const highestBid = item.bids.length > 0 ? item.bids[item.bids.length - 1].amount : item.priceFlr;
+            const highestFmt = formatFlrPrice(highestBid, flrPrice);
+            return (
+              <SpringPress key={item.id} onPress={() => navigation.navigate('ListingDetail', { id: item.id })} activeScale={0.97}>
+                <View style={styles.listingCard}>
+                  <View style={styles.listingImage}>
+                    <Image source={{ uri: item.image }} style={styles.listingImageObj} resizeMode="cover" />
+                  </View>
+                  <View style={styles.listingContent}>
+                    <View style={styles.listingHeader}>
+                      <Text style={styles.listingTitle} numberOfLines={2}>{item.title}</Text>
+                      <View style={[styles.typeBadge, { backgroundColor: typeColor + '20', borderColor: typeColor }]}>
+                        <Text style={[styles.typeBadgeText, { color: typeColor }]}>{LISTING_TYPES[item.type]}</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.sellerName}>{item.seller.name} · ⭐ {item.seller.rating} ({item.seller.sales} sales)</Text>
+                    <View style={styles.priceRow}>
+                      {item.type === 'fixed' && (
+                        <View>
+                          <Text style={styles.priceFlr}>{priceFmt.flr}</Text>
+                          <Text style={styles.priceUsd}>≈ {priceFmt.usd}</Text>
+                        </View>
+                      )}
+                      {item.type === 'auction' && (
+                        <View>
+                          <Text style={styles.priceLabel}>Highest Bid</Text>
+                          <Text style={styles.priceFlr}>{highestFmt.flr}</Text>
+                          <Text style={styles.priceUsd}>≈ {highestFmt.usd}</Text>
+                        </View>
+                      )}
+                      {item.type === 'hybrid' && (
+                        <View>
+                          <Text style={styles.priceFlr}>{highestFmt.flr}</Text>
+                          <Text style={styles.priceUsd}>≈ {highestFmt.usd}</Text>
+                          {buyNowFmt && <Text style={styles.buyNowText}>Buy Now: {buyNowFmt.flr}</Text>}
+                        </View>
+                      )}
+                    </View>
+                    <View style={styles.listingFooter}>
+                      {item.timeLeft ? <Text style={styles.timeLeft}>⏱ {item.timeLeft}</Text> : <Text style={styles.timeLeft}>Available</Text>}
+                      <Text style={styles.feeBadge}>🔥 1% fee · 50% burned</Text>
+                    </View>
+                  </View>
+                </View>
+              </SpringPress>
+            );
+          })}
+          <View style={{ height: 20 }} />
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
@@ -145,7 +190,7 @@ const styles = StyleSheet.create({
   catLabel: { fontSize: 13, fontWeight: '600', color: Colors.text },
   catLabelActive: { color: '#FFF' },
   resultCount: { fontSize: 13, color: Colors.textMuted, marginBottom: 8, fontWeight: '500' },
-  listContainer: { flex: 1 },
+  listScroll: { flex: 1 },
   listingCard: { flexDirection: 'row', backgroundColor: Colors.surface, borderRadius: 16, marginBottom: 10, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden' },
   listingImage: { width: 90, height: 110, backgroundColor: Colors.creamDark, overflow: 'hidden' },
   listingImageObj: { width: '100%', height: '100%' },
