@@ -60,6 +60,7 @@ const TAB_SCREENS = {
   wallet: WalletScreen,
   markets: PricesScreen,
   agentic: AgenticScreen,
+  confidential: ConfidentialScreen,
   rewards: RewardsScreen,
   profile: ProfileScreen,
 };
@@ -92,6 +93,7 @@ const TABS = [
   { key: 'home', label: 'Home' },
   { key: 'wallet', label: 'Wallet' },
   { key: 'agentic', label: 'Agent' },
+  { key: 'confidential', label: 'FCC' },
   { key: 'profile', label: 'Profile' },
 ];
 
