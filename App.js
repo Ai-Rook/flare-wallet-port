@@ -38,6 +38,9 @@ import RewardsScreen from './screens/tabs/RewardsScreen';
 import ProfileScreen from './screens/tabs/ProfileScreen';
 import AgenticScreen from './screens/tabs/AgenticScreen';
 import ConfidentialScreen from './screens/tabs/ConfidentialScreen';
+import MarketplaceScreen from './screens/tabs/MarketplaceScreen';
+import ListingDetailScreen from './screens/stack/ListingDetailScreen';
+import CreateListingScreen from './screens/stack/CreateListingScreen';
 import BuySellScreen from './screens/stack/BuySellScreen';
 import CardDetailScreen from './screens/stack/CardDetailScreen';
 import ExchangeScreen from './screens/stack/ExchangeScreen';
@@ -62,6 +65,7 @@ const TAB_SCREENS = {
   markets: PricesScreen,
   agentic: AgenticScreen,
   confidential: ConfidentialScreen,
+  marketplace: MarketplaceScreen,
   rewards: RewardsScreen,
   profile: ProfileScreen,
 };
@@ -78,6 +82,7 @@ const STACK_SCREENS = {
   Lend: LendScreen, CardDetail: CardDetailScreen, CardSettings: CardSettingsScreen,
   BankLink: BankLinkScreen, WalletDetail: WalletDetailScreen, MarketDetail: MarketDetailScreen, Prices: PricesScreen, Receive: ReceiveScreen, Forgot: ForgotScreen, KYC: KYCScreen,
   Login: LoginScreen, Signup: SignupScreen, Profile: ProfileScreen, Referral: ReferralScreen, CardOrder: CardOrderScreen,
+  ListingDetail: ListingDetailScreen, CreateListing: CreateListingScreen, Marketplace: MarketplaceScreen,
 };
 
 const TAB_ICONS = {
@@ -87,6 +92,7 @@ const TAB_ICONS = {
   markets: { active: require('./assets/tab-icons/trophy-active.png'), inactive: require('./assets/tab-icons/trophy-inactive.png') },
   rewards: { active: require('./assets/tab-icons/trophy-active.png'), inactive: require('./assets/tab-icons/trophy-inactive.png') },
   confidential: { active: require('./assets/tab-icons/agentic-active.png'), inactive: require('./assets/tab-icons/agentic-inactive.png') },
+  marketplace: { active: require('./assets/tab-icons/card-active.png'), inactive: require('./assets/tab-icons/card-inactive.png') },
   agentic: { active: require('./assets/tab-icons/agentic-active.png'), inactive: require('./assets/tab-icons/agentic-inactive.png') },
   profile: { active: require('./assets/tab-icons/profile-active.png'), inactive: require('./assets/tab-icons/profile-inactive.png') },
 };
@@ -96,6 +102,7 @@ const TABS = [
   { key: 'wallet', label: 'Wallet' },
   { key: 'agentic', label: 'Agent' },
   { key: 'confidential', label: 'FCC' },
+  { key: 'marketplace', label: 'Shop' },
   { key: 'profile', label: 'Profile' },
 ];
 
