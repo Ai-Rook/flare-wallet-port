@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   searchInput: { flex: 1, backgroundColor: Colors.surface, borderRadius: 12, padding: 14, fontSize: 15, borderWidth: 1, borderColor: Colors.border },
   sellBtn: { backgroundColor: Colors.primary, borderRadius: 12, paddingHorizontal: 20, justifyContent: 'center' },
   sellBtnText: { color: '#FFF', fontSize: 15, fontWeight: '700' },
-  catRow: { flexDirection: 'row', marginBottom: 12 },
+  catRow: { flexDirection: 'row', marginBottom: 12, flex: 0, flexShrink: 0, height: 36 },
   catChip: { borderRadius: 18, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, marginRight: 8, height: 36, width: 90, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   catChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   catLabel: { fontSize: 13, fontWeight: '600', color: Colors.text },
