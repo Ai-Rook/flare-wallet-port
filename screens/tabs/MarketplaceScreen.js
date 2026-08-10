@@ -118,13 +118,15 @@ export default function MarketplaceScreen({ navigation }) {
 
         {/* Listings */}
         <Text style={styles.resultCount}>{filtered.length} listings</Text>
-        <FlatList
-          data={filtered}
-          renderItem={renderListing}
-          keyExtractor={item => String(item.id)}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          showsVerticalScrollIndicator={false}
-        />
+        <View style={styles.listContainer}>
+          <FlatList
+            data={filtered}
+            renderItem={renderListing}
+            keyExtractor={item => String(item.id)}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -143,6 +145,7 @@ const styles = StyleSheet.create({
   catLabel: { fontSize: 13, fontWeight: '600', color: Colors.text },
   catLabelActive: { color: '#FFF' },
   resultCount: { fontSize: 13, color: Colors.textMuted, marginBottom: 8, fontWeight: '500' },
+  listContainer: { flex: 1 },
   listingCard: { flexDirection: 'row', backgroundColor: Colors.surface, borderRadius: 16, marginBottom: 10, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden' },
   listingImage: { width: 90, height: 110, backgroundColor: Colors.creamDark, overflow: 'hidden' },
   listingImageObj: { width: '100%', height: '100%' },
