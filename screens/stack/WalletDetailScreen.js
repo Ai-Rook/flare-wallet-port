@@ -1,25 +1,30 @@
 import ScreenHeader from '../../components/ScreenHeader';
+import FlareTokenIcon, { FASSET_UNDERLYING } from '../../components/FlareTokenIcon';
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, ScrollView, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../../constants/colors';
 import SpringPress from '../../components/SpringPress';
-import TokenIcon from '../../components/TokenIcon';
-import PortfolioHero from '../../components/PortfolioHero';
-import { TOKENS, getTokenBySymbol } from '../../constants/tokens';
+import { CRYPTO_HOLDINGS, getAssetUSDValue } from '../../constants/holdings';
 import { AppContext } from '../../context/AppContext';
 import { useLivePrices } from '../../services/LivePriceService';
 
 export default function WalletDetailScreen({ navigation, route }) {
   const symbol = route.params?.symbol || 'BTC';
-  const token = getTokenBySymbol(symbol);
-  const { user } = useContext(AppContext);
   const { prices } = useLivePrices();
-  const livePrice = prices[symbol];
-  const coinAmount = symbol === 'BTC' ? 0.141 : symbol === 'ETH' ? 1.205 : symbol === 'XRP' ? 1840 : symbol === 'SOL' ? 32.1 : symbol === 'LTC' ? 48.5 : symbol === 'BNB' ? 2.34 : 0;
-  const fiatValue = livePrice ? (coinAmount * livePrice.price) : 0;
+
+  // Find the holding from shared holdings (single source of truth)
+  const holding = CRYPTO_HOLDINGS.find(h => h.symbol === symbol);
+  const coinAmount = holding?.amount || 0;
+
+  // Fix price lookup: FAssets (FBTC, FXRP, etc.) need to look up underlying symbol
+  const priceKey = FASSET_UNDERLYING[symbol] || symbol;
+  const livePrice = prices[priceKey];
+  const price = livePrice?.price || 0;
+  const fiatValue = coinAmount * price;
   const change24h = livePrice?.change24h || 0;
   const isPositive = change24h >= 0;
+  const tokenName = holding?.name || symbol;
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
@@ -36,34 +41,48 @@ export default function WalletDetailScreen({ navigation, route }) {
     { label: 'Sell', icon: '📉', screen: 'BuySell', params: { side: 'sell', symbol } },
     { label: 'Send', icon: '📤', screen: 'Send', params: { symbol } },
     { label: 'Receive', icon: '📥', screen: 'Receive', params: { symbol } },
-    { label: 'Exchange', icon: '🔄', screen: 'Exchange', params: { fromAsset: symbol } },
+    { label: 'Swap', icon: '🔄', screen: 'Exchange', params: { fromAsset: symbol } },
   ];
 
   // Mock transaction history
   const transactions = [
-    { type: 'Received', amount: '+0.005', date: 'Jun 28', color: '#4CD964' },
-    { type: 'Sent', amount: '-0.012', date: 'Jun 25', color: '#D4555A' },
-    { type: 'Bought', amount: '+0.020', date: 'Jun 22', color: '#4CD964' },
-    { type: 'Exchange', amount: '0.033 → ETH', date: 'Jun 18', color: '#5856D6' },
+    { type: 'Received', amount: '+0.005', date: 'Aug 8', color: Colors.success },
+    { type: 'Sent', amount: '-0.012', date: 'Aug 5', color: Colors.error },
+    { type: 'Bought', amount: '+0.020', date: 'Aug 2', color: Colors.success },
+    { type: 'Swap', amount: '0.033 → ETH', date: 'Jul 28', color: Colors.primary },
   ];
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
-
-      <ScreenHeader pageName={token?.name || symbol} onBack={() => navigation.goBack()} />
+      <ScreenHeader pageName={tokenName} onBack={() => navigation.goBack()} />
 
       <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
 
-          {/* Portfolio Hero — card + coin shadow composition */}
-          <PortfolioHero
-            symbol={symbol}
-            price={livePrice ? `$${livePrice.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '—'}
-            change24h={change24h}
-            holdings={`${coinAmount.toFixed(4)} ${symbol}`}
-            fiatValue={fiatValue ? `$${fiatValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—'}
-          />
+          {/* Price Hero — uses FlareTokenIcon, no clip art */}
+          <View style={styles.heroCard}>
+            <View style={styles.heroTop}>
+              <FlareTokenIcon symbol={symbol} size={64} color={Colors.primary} />
+              <View style={styles.heroPriceCol}>
+                <Text style={styles.heroSymbol}>{symbol}</Text>
+                <Text style={styles.heroPrice}>
+                  ${price > 0 ? price.toLocaleString('en-US', { maximumFractionDigits: 4 }) : '—'}
+                </Text>
+                <Text style={[styles.heroChange, { color: isPositive ? Colors.success : Colors.error }]}>
+                  {isPositive ? '▲' : '▼'} {Math.abs(change24h).toFixed(2)}%
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.holdingsRow}>
+              <View style={styles.holdingsBox}>
+                <Text style={styles.holdingsLabel}>Your Holdings</Text>
+                <Text style={styles.holdingsAmount}>{coinAmount.toLocaleString()} {symbol}</Text>
+                <Text style={styles.holdingsFiat}>≈ ${fiatValue.toLocaleString('en-US', { maximumFractionDigits: 2 })}</Text>
+              </View>
+            </View>
+          </View>
 
           {/* Quick action buttons */}
           <View style={styles.actionsRow}>
@@ -79,26 +98,30 @@ export default function WalletDetailScreen({ navigation, route }) {
 
           {/* About section */}
           <View style={styles.aboutCard}>
-            <Text style={styles.sectionTitle}>About {token?.name || symbol}</Text>
+            <Text style={styles.sectionTitle}>About {tokenName}</Text>
             <View style={styles.aboutRow}>
-              <Text style={styles.aboutLabel}>Price</Text>
+              <Text style={styles.aboutLabel}>Live Price</Text>
               <Text style={styles.aboutValue}>
-                ${livePrice ? livePrice.price.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '—'}
+                ${price > 0 ? price.toLocaleString('en-US', { maximumFractionDigits: 4 }) : '—'}
               </Text>
             </View>
             <View style={[styles.aboutRow, styles.aboutBorder]}>
               <Text style={styles.aboutLabel}>24h Change</Text>
-              <Text style={[styles.aboutValue, { color: isPositive ? '#4CD964' : '#D4555A' }]}>
+              <Text style={[styles.aboutValue, { color: isPositive ? Colors.success : Colors.error }]}>
                 {isPositive ? '+' : ''}{change24h.toFixed(2)}%
               </Text>
             </View>
             <View style={[styles.aboutRow, styles.aboutBorder]}>
-              <Text style={styles.aboutLabel}>Market Cap</Text>
-              <Text style={styles.aboutValue}>$1.2T</Text>
+              <Text style={styles.aboutLabel}>Your Balance</Text>
+              <Text style={styles.aboutValue}>{coinAmount} {symbol}</Text>
             </View>
             <View style={[styles.aboutRow, styles.aboutBorder]}>
-              <Text style={styles.aboutLabel}>Rank</Text>
-              <Text style={styles.aboutValue}>#1</Text>
+              <Text style={styles.aboutLabel}>USD Value</Text>
+              <Text style={styles.aboutValue}>${fiatValue.toLocaleString('en-US', { maximumFractionDigits: 2 })}</Text>
+            </View>
+            <View style={[styles.aboutRow, styles.aboutBorder]}>
+              <Text style={styles.aboutLabel}>Price Source</Text>
+              <Text style={styles.aboutValue}>{livePrice ? '🔥 FTSOv2 Oracle' : 'Demo'}</Text>
             </View>
           </View>
 
@@ -130,51 +153,35 @@ export default function WalletDetailScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F2F2F7' },
-  header: {
-    height: 64, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 12, paddingTop: 4,
-  },
-  backBtn: {
-    width: 44, height: 44, alignItems: 'center', justifyContent: 'center',
-  },
-  backIcon: { color: '#FFF', fontSize: 26, fontWeight: '400' },
-  headerTitle: { color: '#FFF', fontSize: 17, fontWeight: '700', marginLeft: 8 },
-  iconCircle: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  iconText: { color: '#FFF', fontSize: 14, fontWeight: '700' },
-  content: { flex: 1, paddingHorizontal: 16, paddingTop: 12 },
-  balanceCard: {
-    backgroundColor: '#FFFFFF', borderRadius: 18, padding: 24, marginBottom: 16,
-    alignItems: 'center', shadowColor: '#5856D6', shadowOpacity: 0.08, shadowRadius: 12, elevation: 3,
-  },
-  balanceLabel: { fontSize: 13, color: '#8E8E93', fontWeight: '500', marginBottom: 4, textTransform: 'uppercase' },
-  balanceValue: { fontSize: 34, fontWeight: '700', color: '#1C3040', marginBottom: 4 },
-  balanceFiat: { fontSize: 16, color: '#8E8E93', marginBottom: 8 },
-  changeRow: { flexDirection: 'row', alignItems: 'center' },
-  changeText: { fontSize: 15, fontWeight: '600' },
-  actionsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16, gap: 8 },
-  actionBtn: { flex: 1 },
-  actionBtnInner: {
-    alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 14, padding: 14,
-    shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
-  },
-  actionIcon: { fontSize: 22, marginBottom: 4 },
-  actionLabel: { fontSize: 12, fontWeight: '600', color: '#1C3040' },
-  aboutCard: {
-    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 16,
-  },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#1C3040', marginBottom: 12 },
-  aboutRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10 },
-  aboutBorder: { borderTopWidth: 1, borderTopColor: '#F2F2F7' },
-  aboutLabel: { fontSize: 14, color: '#8E8E93' },
-  aboutValue: { fontSize: 14, fontWeight: '600', color: '#1C3040' },
-  historyCard: {
-    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 24,
-  },
+  safeArea: { flex: 1, backgroundColor: Colors.background },
+  content: { flex: 1 },
+  heroCard: { margin: 16, backgroundColor: Colors.surface, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: Colors.border },
+  heroTop: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+  heroPriceCol: { flex: 1, marginLeft: 16 },
+  heroSymbol: { fontSize: 16, fontWeight: '600', color: Colors.textSecondary, marginBottom: 4 },
+  heroPrice: { fontSize: 32, fontWeight: '800', color: Colors.text, marginBottom: 4 },
+  heroChange: { fontSize: 16, fontWeight: '600' },
+  holdingsRow: { marginTop: 8 },
+  holdingsBox: { backgroundColor: Colors.background, borderRadius: 14, padding: 16 },
+  holdingsLabel: { fontSize: 12, color: Colors.textMuted, marginBottom: 4 },
+  holdingsAmount: { fontSize: 20, fontWeight: '700', color: Colors.text, marginBottom: 2 },
+  holdingsFiat: { fontSize: 14, color: Colors.textSecondary },
+  actionsRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 8, marginBottom: 16 },
+  actionBtn: { flex: 1, backgroundColor: Colors.surface, borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: Colors.border },
+  actionBtnInner: { alignItems: 'center' },
+  actionIcon: { fontSize: 20, marginBottom: 4 },
+  actionLabel: { fontSize: 11, fontWeight: '600', color: Colors.textSecondary },
+  aboutCard: { margin: 16, backgroundColor: Colors.surface, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: Colors.border },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: Colors.text, marginBottom: 12 },
+  aboutRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8 },
+  aboutBorder: { borderTopWidth: 1, borderTopColor: Colors.border },
+  aboutLabel: { fontSize: 14, color: Colors.textSecondary },
+  aboutValue: { fontSize: 14, fontWeight: '600', color: Colors.text },
+  historyCard: { margin: 16, backgroundColor: Colors.surface, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: Colors.border },
   txRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12 },
-  txBorder: { borderBottomWidth: 1, borderBottomColor: '#F2F2F7' },
-  txIconCircle: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
-  txType: { fontSize: 15, fontWeight: '600', color: '#1C3040' },
-  txAmount: { fontSize: 15, fontWeight: '600' },
-  txDate: { fontSize: 12, color: '#8E8E93', marginTop: 2 },
+  txBorder: { borderBottomWidth: 1, borderBottomColor: Colors.border },
+  txIconCircle: { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  txType: { fontSize: 14, fontWeight: '500', color: Colors.text },
+  txAmount: { fontSize: 14, fontWeight: '700' },
+  txDate: { fontSize: 12, color: Colors.textMuted, marginTop: 2 },
 });

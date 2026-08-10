@@ -5,6 +5,7 @@ import { useLivePrices } from '../../services/LivePriceService';
 import { CRYPTO_HOLDINGS, FIAT_HOLDINGS, computePortfolioTotal, computePortfolioChange, getAssetUSDValue } from '../../constants/holdings';
 import { DEMO_WALLET_ADDRESS, FLARE_EXPLORER, FLARE_NETWORK_NAME } from '../../appConfig';
 import ScreenHeader from '../../components/ScreenHeader';
+import FlareTokenIcon, { FASSET_UNDERLYING } from '../../components/FlareTokenIcon';
 
 export default function WalletScreen({ navigation }) {
   const { prices, lastUpdated, source, refresh } = useLivePrices();
@@ -76,9 +77,7 @@ export default function WalletScreen({ navigation }) {
               style={styles.assetCard}
               onPress={() => navigation.navigate('WalletDetail', { symbol: asset.symbol })}
             >
-              <View style={[styles.assetIcon, { backgroundColor: asset.color + '20' }]}>
-                <Text style={styles.assetIconText}>{asset.symbol.slice(0, 2)}</Text>
-              </View>
+              <FlareTokenIcon symbol={asset.symbol} size={44} color={Colors.primary} />
               <View style={styles.assetInfo}>
                 <Text style={styles.assetName}>{asset.name}</Text>
                 <Text style={styles.assetAmount}>{asset.amount.toLocaleString()} {asset.symbol}</Text>
@@ -98,9 +97,7 @@ export default function WalletScreen({ navigation }) {
         <Text style={styles.sectionTitle}>Fiat Wallet</Text>
         {FIAT_HOLDINGS.map((fiat) => (
           <View key={fiat.code} style={styles.assetCard}>
-            <View style={styles.assetIcon}>
-              <Text style={styles.assetIconText}>{fiat.flag}</Text>
-            </View>
+            <FlareTokenIcon symbol={fiat.code} size={44} color={Colors.primary} />
             <View style={styles.assetInfo}>
               <Text style={styles.assetName}>{fiat.name}</Text>
               <Text style={styles.assetAmount}>{fiat.amount.toLocaleString()} {fiat.code}</Text>

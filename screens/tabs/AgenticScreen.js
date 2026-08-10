@@ -5,6 +5,7 @@ import { useLivePrices } from '../../services/LivePriceService';
 import { CRYPTO_HOLDINGS, computePortfolioTotal, computePortfolioChange, getAssetUSDValue } from '../../constants/holdings';
 import { FLARE_NETWORK_NAME } from '../../appConfig';
 import ScreenHeader from '../../components/ScreenHeader';
+import FlareTokenIcon from '../../components/FlareTokenIcon';
 
 export default function AgenticScreen({ navigation }) {
   const { prices, source } = useLivePrices();
@@ -78,9 +79,7 @@ export default function AgenticScreen({ navigation }) {
           const usdValue = getAssetUSDValue(asset, prices);
           return (
             <View key={asset.symbol} style={styles.holdingRow}>
-              <View style={[styles.holdingIcon, { backgroundColor: asset.color + '20' }]}>
-                <Text style={styles.holdingIconText}>{asset.symbol.slice(0, 2)}</Text>
-              </View>
+              <FlareTokenIcon symbol={asset.symbol} size={36} color={Colors.primary} />
               <Text style={styles.holdingName}>{asset.symbol}</Text>
               <Text style={styles.holdingValue}>${usdValue.toLocaleString('en-US', { maximumFractionDigits: 2 })}</Text>
             </View>

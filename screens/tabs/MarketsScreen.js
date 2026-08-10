@@ -3,6 +3,7 @@ import { ScrollView, View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { useLivePrices } from '../../services/LivePriceService';
 import ScreenHeader from '../../components/ScreenHeader';
+import FlareTokenIcon from '../../components/FlareTokenIcon';
 
 const FEED_INFO = [
   { symbol: 'FLR', name: 'Flare', color: '#FFD700' },
@@ -61,9 +62,7 @@ export default function MarketsScreen({ navigation }) {
               style={styles.feedCard}
               onPress={() => navigation.navigate('MarketDetail', { symbol: feed.symbol })}
             >
-              <View style={[styles.feedIcon, { backgroundColor: feed.color + '20' }]}>
-                <Text style={styles.feedIconText}>{feed.symbol.slice(0, 2)}</Text>
-              </View>
+              <FlareTokenIcon symbol={feed.symbol} size={40} color={Colors.primary} />
               <View style={styles.feedInfo}>
                 <Text style={styles.feedName}>{feed.name}</Text>
                 <Text style={styles.feedPair}>{feed.symbol}/USD</Text>
