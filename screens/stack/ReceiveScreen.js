@@ -63,7 +63,7 @@ export default function ReceiveScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScreenHeader title="Receive" subtitle="Share your address" />
+      <ScreenHeader title="Receive" subtitle="Share your address" onBack={() => navigation.goBack?.()} />
       <View style={styles.content}>
         {/* Flare branding badge */}
         <View style={styles.flareBanner}>
