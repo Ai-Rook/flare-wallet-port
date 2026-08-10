@@ -244,16 +244,13 @@ function AppContent() {
   const navCounter = useRef(0);
 
   const navigate = (screen, params = {}) => {
-    if (screen === 'Profile' || screen === 'profile') {
-      setActiveTab('profile');
+    // If navigating to a tab screen, switch tabs and clear stack — don't push as stack
+    const tabKeys = ['home', 'wallet', 'marketplace', 'agentic', 'confidential', 'profile', 'Marketplace', 'Profile', 'Agentic'];
+    if (tabKeys.includes(screen)) {
+      const tabKey = screen.toLowerCase();
       setStack([]);
       setRenderingStack([]);
-      return;
-    }
-    if (screen === 'Agentic' || screen === 'agentic') {
-      setActiveTab('agentic');
-      setStack([]);
-      setRenderingStack([]);
+      setActiveTab(tabKey);
       return;
     }
     // Animate: slide new screen in from right
@@ -271,13 +268,16 @@ function AppContent() {
   };
 
   const goBack = () => {
-    // Smooth slide-out — faster, reveals tab underneath
+    // Clear stack immediately — no animation callback race
+    setStack(prev => prev.slice(0, -1));
+    setRenderingStack(prev => prev.slice(0, -1));
+    // Animate out
     Animated.parallel([
       Animated.timing(stackOpacity, { toValue: 0, duration: 150, easing: Easing.in(Easing.ease), useNativeDriver: true }),
       Animated.timing(stackSlide, { toValue: 300, duration: 200, easing: Easing.out(Easing.quad), useNativeDriver: true }),
     ]).start(() => {
-      setStack(prev => prev.slice(0, -1));
-      setRenderingStack(prev => prev.slice(0, -1));
+      stackOpacity.setValue(1);
+      stackSlide.setValue(0);
     });
   };
 
