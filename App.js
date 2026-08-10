@@ -100,17 +100,17 @@ const TAB_ICONS = {
 const TABS = [
   { key: 'home', label: 'Home' },
   { key: 'wallet', label: 'Wallet' },
+  { key: 'marketplace', label: 'Shop' },
   { key: 'agentic', label: 'Agent' },
   { key: 'confidential', label: 'FCC' },
-  { key: 'marketplace', label: 'Shop' },
   { key: 'profile', label: 'Profile' },
 ];
 
 import { Image } from 'react-native';
 function TabBar({ activeTab, onTabPress, onFABPress }) {
   // Split tabs: first 2, center FAB, last 3
-  const leftTabs = TABS.slice(0, 2);
-  const rightTabs = TABS.slice(2);
+  const leftTabs = TABS.slice(0, 3);
+  const rightTabs = TABS.slice(3);
 
   return (
     <View style={tabStyles.outerContainer}>
@@ -123,7 +123,7 @@ function TabBar({ activeTab, onTabPress, onFABPress }) {
               <View style={tabStyles.tabContent}>
                 <Image
                   source={isActive ? TAB_ICONS[tab.key]?.active : TAB_ICONS[tab.key]?.inactive}
-                  style={{ width: 26, height: 26, tintColor: isActive ? '#FF6300' : '#9E8E83' }}
+                  style={{ width: 22, height: 22, tintColor: isActive ? '#FF6300' : '#9E8E83' }}
                   resizeMode="contain"
                 />
                 <Text style={[tabStyles.label, isActive && tabStyles.labelActive]}>{tab.label}</Text>
@@ -149,7 +149,7 @@ function TabBar({ activeTab, onTabPress, onFABPress }) {
               <View style={tabStyles.tabContent}>
                 <Image
                   source={isActive ? TAB_ICONS[tab.key]?.active : TAB_ICONS[tab.key]?.inactive}
-                  style={{ width: 26, height: 26, tintColor: isActive ? '#FF6300' : '#9E8E83' }}
+                  style={{ width: 22, height: 22, tintColor: isActive ? '#FF6300' : '#9E8E83' }}
                   resizeMode="contain"
                 />
                 <Text style={[tabStyles.label, isActive && tabStyles.labelActive]}>{tab.label}</Text>
@@ -175,21 +175,21 @@ const tabStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
-    height: 56,
+    height: 52,
     alignItems: 'center',
     boxShadow: '0 -2px 8px rgba(0,0,0,0.06)',
   },
   fabWrap: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -22, // Pop up above the bar
+    marginTop: -18, // Pop up above the bar
     marginHorizontal: 4,
   },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   tabContent: { alignItems: 'center', justifyContent: 'center' },
   icon: { fontSize: 22, color: '#8E8E93', marginBottom: 2 },
   iconActive: { color: '#007AFF' },
-  label: { fontSize: 10, color: '#8E8E93', fontWeight: '500' },
+  label: { fontSize: 9, color: '#8E8E93', fontWeight: '500' },
   labelActive: { color: '#FF6300', fontWeight: '600' },
   underline: {
     width: 20,

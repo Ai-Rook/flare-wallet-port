@@ -2,13 +2,13 @@
 import { Colors } from './colors';
 
 export const CATEGORIES = [
-  { id: 'all', label: 'All', icon: '🔍' },
-  { id: 'electronics', label: 'Electronics', icon: '📱' },
-  { id: 'collectibles', label: 'Collectibles', icon: '🎴' },
-  { id: 'art', label: 'Art', icon: '🎨' },
-  { id: 'fashion', label: 'Fashion', icon: '👕' },
-  { id: 'home', label: 'Home', icon: '🏠' },
-  { id: 'other', label: 'Other', icon: '📦' },
+  { id: 'all', label: 'All' },
+  { id: 'electronics', label: 'Electronics' },
+  { id: 'collectibles', label: 'Collectibles' },
+  { id: 'art', label: 'Art' },
+  { id: 'fashion', label: 'Fashion' },
+  { id: 'home', label: 'Home' },
+  { id: 'other', label: 'Other' },
 ];
 
 export const LISTING_TYPES = {
@@ -31,7 +31,6 @@ export const MOCK_LISTINGS = [
     category: 'electronics',
     type: 'fixed',
     priceFlr: 92500, // ~$560 at $0.006/FLR
-    image: '💻',
     seller: { name: 'TechFlare', rating: 4.9, sales: 127 },
     timeLeft: null,
     bids: [],
@@ -44,7 +43,6 @@ export const MOCK_LISTINGS = [
     category: 'collectibles',
     type: 'auction',
     priceFlr: 18500, // starting price
-    image: '🔥',
     seller: { name: 'CardKing', rating: 5.0, sales: 43 },
     timeLeft: '2d 14h',
     bids: [
@@ -61,7 +59,6 @@ export const MOCK_LISTINGS = [
     type: 'hybrid',
     priceFlr: 4200, // auction start
     buyNowFlr: 8500,
-    image: '🎨',
     seller: { name: 'ArtOnFlare', rating: 4.7, sales: 12 },
     timeLeft: '5d 3h',
     bids: [
@@ -76,7 +73,6 @@ export const MOCK_LISTINGS = [
     category: 'fashion',
     type: 'fixed',
     priceFlr: 1250000, // ~$7,500
-    image: '⌚',
     seller: { name: 'LuxFlare', rating: 4.95, sales: 89 },
     timeLeft: null,
     bids: [],
@@ -89,7 +85,6 @@ export const MOCK_LISTINGS = [
     category: 'electronics',
     type: 'auction',
     priceFlr: 52000,
-    image: '📷',
     seller: { name: 'PhotoPro', rating: 4.8, sales: 34 },
     timeLeft: '6d 22h',
     bids: [
@@ -105,7 +100,6 @@ export const MOCK_LISTINGS = [
     category: 'home',
     type: 'fixed',
     priceFlr: 3800,
-    image: '🏺',
     seller: { name: 'CraftFlare', rating: 4.6, sales: 8 },
     timeLeft: null,
     bids: [],
@@ -119,7 +113,6 @@ export const MOCK_LISTINGS = [
     type: 'hybrid',
     priceFlr: 6200,
     buyNowFlr: 12000,
-    image: '🔑',
     seller: { name: 'HODLware', rating: 4.85, sales: 56 },
     timeLeft: '4d 8h',
     bids: [
@@ -135,7 +128,6 @@ export const MOCK_LISTINGS = [
     category: 'fashion',
     type: 'auction',
     priceFlr: 310000,
-    image: '👟',
     seller: { name: 'SoleFlare', rating: 4.9, sales: 23 },
     timeLeft: '1d 2h',
     bids: [

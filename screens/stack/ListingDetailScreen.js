@@ -28,7 +28,7 @@ export default function ListingDetailScreen({ navigation, route }) {
       <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 40 }}>
         {/* Image */}
         <View style={styles.imageSection}>
-          <Text style={styles.listingEmoji}>{listing.image}</Text>
+          <Text style={styles.listingLetter}>{listing.title[0]}</Text>
         </View>
 
         {/* Title + Type */}
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   scroll: { flex: 1 },
   imageSection: { height: 200, backgroundColor: Colors.creamDark, justifyContent: 'center', alignItems: 'center' },
-  listingEmoji: { fontSize: 80 },
+  listingLetter: { fontSize: 64, fontWeight: '800', color: Colors.primary },
   titleSection: { padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   title: { fontSize: 20, fontWeight: '800', color: Colors.text, flex: 1, marginRight: 8 },
   typeBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },

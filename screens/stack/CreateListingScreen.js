@@ -65,7 +65,6 @@ export default function CreateListingScreen({ navigation }) {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catRow}>
           {CATEGORIES.filter(c => c.id !== 'all').map(cat => (
             <TouchableOpacity key={cat.id} style={[styles.catChip, category === cat.id && styles.catChipActive]} onPress={() => setCategory(cat.id)}>
-              <Text style={styles.catIcon}>{cat.icon}</Text>
               <Text style={[styles.catText, category === cat.id && styles.catTextActive]}>{cat.label}</Text>
             </TouchableOpacity>
           ))}
@@ -170,7 +169,6 @@ const styles = StyleSheet.create({
   catRow: { flexDirection: 'row', marginBottom: 8 },
   catChip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, marginRight: 8 },
   catChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  catIcon: { fontSize: 14, marginRight: 4 },
   catText: { fontSize: 13, fontWeight: '600', color: Colors.text },
   catTextActive: { color: '#FFF' },
   typeRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },

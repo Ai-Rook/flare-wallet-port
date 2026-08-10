@@ -32,7 +32,7 @@ export default function MarketplaceScreen({ navigation }) {
         <View style={styles.listingCard}>
           {/* Image placeholder */}
           <View style={styles.listingImage}>
-            <Text style={styles.listingEmoji}>{item.image}</Text>
+            <Text style={styles.listingLetter}>{item.title[0]}</Text>
           </View>
 
           {/* Content */}
@@ -111,7 +111,6 @@ export default function MarketplaceScreen({ navigation }) {
               style={[styles.catChip, activeCategory === cat.id && styles.catChipActive]}
               onPress={() => setActiveCategory(cat.id)}
             >
-              <Text style={styles.catIcon}>{cat.icon}</Text>
               <Text style={[styles.catLabel, activeCategory === cat.id && styles.catLabelActive]}>{cat.label}</Text>
             </TouchableOpacity>
           ))}
@@ -141,13 +140,12 @@ const styles = StyleSheet.create({
   catRow: { flexDirection: 'row', marginBottom: 12 },
   catChip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, marginRight: 8 },
   catChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  catIcon: { fontSize: 16, marginRight: 4 },
   catLabel: { fontSize: 13, fontWeight: '600', color: Colors.text },
   catLabelActive: { color: '#FFF' },
   resultCount: { fontSize: 13, color: Colors.textMuted, marginBottom: 8, fontWeight: '500' },
   listingCard: { flexDirection: 'row', backgroundColor: Colors.surface, borderRadius: 16, marginBottom: 10, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden' },
-  listingImage: { width: 100, height: 120, backgroundColor: Colors.creamDark, justifyContent: 'center', alignItems: 'center' },
-  listingEmoji: { fontSize: 40 },
+  listingImage: { width: 80, height: 100, backgroundColor: Colors.primary + '12', justifyContent: 'center', alignItems: 'center', borderRightWidth: 0 },
+  listingLetter: { fontSize: 32, fontWeight: '800', color: Colors.primary },
   listingContent: { flex: 1, padding: 12 },
   listingHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 },
   listingTitle: { fontSize: 14, fontWeight: '700', color: Colors.text, flex: 1, marginRight: 8 },
