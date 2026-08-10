@@ -37,6 +37,7 @@ import MarketsScreen from './screens/tabs/MarketsScreen';
 import RewardsScreen from './screens/tabs/RewardsScreen';
 import ProfileScreen from './screens/tabs/ProfileScreen';
 import AgenticScreen from './screens/tabs/AgenticScreen';
+import ConfidentialScreen from './screens/tabs/ConfidentialScreen';
 import BuySellScreen from './screens/stack/BuySellScreen';
 import CardDetailScreen from './screens/stack/CardDetailScreen';
 import ExchangeScreen from './screens/stack/ExchangeScreen';
