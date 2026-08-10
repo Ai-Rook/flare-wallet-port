@@ -241,6 +241,8 @@ function AppContent() {
   const stackOpacity = useRef(new Animated.Value(0)).current;
   const stackSlide = useRef(new Animated.Value(0)).current;
 
+  const navCounter = useRef(0);
+
   const navigate = (screen, params = {}) => {
     if (screen === 'Profile' || screen === 'profile') {
       setActiveTab('profile');
@@ -257,8 +259,9 @@ function AppContent() {
     // Animate: slide new screen in from right
     stackSlide.setValue(300);
     stackOpacity.setValue(0);
-    setStack(prev => [...prev, { screen, params }]);
-    setRenderingStack(prev => [...prev, { screen, params }]);
+    navCounter.current++;
+    setStack(prev => [...prev, { screen, params, navKey: navCounter.current }]);
+    setRenderingStack(prev => [...prev, { screen, params, navKey: navCounter.current }]);
 
     // Spring push — overshoot then settle (feels more iOS-native)
     Animated.parallel([
@@ -281,13 +284,14 @@ function AppContent() {
   const handleTabPress = (tab) => {
     if (tab === activeTab) return;
     setFabOpen(false);
+    // Clear stack IMMEDIATELY — before animation, no race condition
+    setStack([]);
+    setRenderingStack([]);
     // Crossfade: fade out current, fade in new
     Animated.sequence([
       Animated.timing(tabOpacity, { toValue: 0, duration: 150, easing: Easing.in(Easing.ease), useNativeDriver: true }),
     ]).start(() => {
       setActiveTab(tab);
-      setStack([]);
-      setRenderingStack([]);
       Animated.timing(tabOpacity, { toValue: 1, duration: 150, easing: Easing.out(Easing.ease), useNativeDriver: true }).start();
     });
   };
@@ -336,6 +340,7 @@ function AppContent() {
     const current = renderingStack[renderingStack.length - 1];
     const currentScreen = current.screen || current;
     const currentParams = current.params || {};
+    const currentNavKey = current.navKey || 0;
     const ScreenComponent = STACK_SCREENS[currentScreen] || TAB_SCREENS[currentScreen];
     const screenTitle = currentScreen.charAt(0).toUpperCase() + currentScreen.slice(1);
     const fakeNav = { navigate, goBack, setParams: () => {} };
@@ -351,7 +356,7 @@ function AppContent() {
         </Animated.View>
         {/* Stack screen slides on top */}
         <AnimatedScreen animValue={stackOpacity} slideValue={stackSlide} type="stack">
-          <ErrorBoundary>
+          <ErrorBoundary key={currentNavKey}>
             <ScreenComponent navigation={fakeNav} route={{ params: currentParams }} />
           </ErrorBoundary>
         </AnimatedScreen>
