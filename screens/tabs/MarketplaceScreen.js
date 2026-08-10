@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   sellBtn: { backgroundColor: Colors.primary, borderRadius: 12, paddingHorizontal: 20, justifyContent: 'center' },
   sellBtnText: { color: '#FFF', fontSize: 15, fontWeight: '700' },
   catRow: { flexDirection: 'row', marginBottom: 12 },
-  catChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, marginRight: 8, height: 36, alignItems: 'center', justifyContent: 'center' },
+  catChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 18, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, marginRight: 8, height: 36, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   catChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   catLabel: { fontSize: 13, fontWeight: '600', color: Colors.text },
   catLabelActive: { color: '#FFF' },
