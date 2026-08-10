@@ -2,7 +2,6 @@ import ScreenHeader from '../../components/ScreenHeader';
 import FlareTokenIcon, { FASSET_UNDERLYING } from '../../components/FlareTokenIcon';
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, ScrollView, Animated } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../../constants/colors';
 import SpringPress from '../../components/SpringPress';
 import { CRYPTO_HOLDINGS, getAssetUSDValue } from '../../constants/holdings';
@@ -13,11 +12,9 @@ export default function WalletDetailScreen({ navigation, route }) {
   const symbol = route.params?.symbol || 'BTC';
   const { prices } = useLivePrices();
 
-  // Find the holding from shared holdings (single source of truth)
   const holding = CRYPTO_HOLDINGS.find(h => h.symbol === symbol);
   const coinAmount = holding?.amount || 0;
 
-  // Fix price lookup: FAssets (FBTC, FXRP, etc.) need to look up underlying symbol
   const priceKey = FASSET_UNDERLYING[symbol] || symbol;
   const livePrice = prices[priceKey];
   const price = livePrice?.price || 0;
@@ -36,20 +33,20 @@ export default function WalletDetailScreen({ navigation, route }) {
     ]).start();
   }, []);
 
+  // Clean text action buttons — no emoji clip art
   const actions = [
-    { label: 'Buy', icon: '📈', screen: 'BuySell', params: { side: 'buy', symbol } },
-    { label: 'Sell', icon: '📉', screen: 'BuySell', params: { side: 'sell', symbol } },
-    { label: 'Send', icon: '📤', screen: 'Send', params: { symbol } },
-    { label: 'Receive', icon: '📥', screen: 'Receive', params: { symbol } },
-    { label: 'Swap', icon: '🔄', screen: 'Exchange', params: { fromAsset: symbol } },
+    { label: 'Buy', screen: 'BuySell', params: { side: 'buy', symbol } },
+    { label: 'Sell', screen: 'BuySell', params: { side: 'sell', symbol } },
+    { label: 'Send', screen: 'Send', params: { symbol } },
+    { label: 'Receive', screen: 'Receive', params: { symbol } },
+    { label: 'Swap', screen: 'Exchange', params: { fromAsset: symbol } },
   ];
 
-  // Mock transaction history
   const transactions = [
-    { type: 'Received', amount: '+0.005', date: 'Aug 8', color: Colors.success },
-    { type: 'Sent', amount: '-0.012', date: 'Aug 5', color: Colors.error },
-    { type: 'Bought', amount: '+0.020', date: 'Aug 2', color: Colors.success },
-    { type: 'Swap', amount: '0.033 → ETH', date: 'Jul 28', color: Colors.primary },
+    { type: 'Received', amount: '+0.005', date: 'Aug 8', color: Colors.success, direction: 'in' },
+    { type: 'Sent', amount: '-0.012', date: 'Aug 5', color: Colors.error, direction: 'out' },
+    { type: 'Bought', amount: '+0.020', date: 'Aug 2', color: Colors.success, direction: 'in' },
+    { type: 'Swap', amount: '0.033 → ETH', date: 'Jul 28', color: Colors.primary, direction: 'swap' },
   ];
 
   return (
@@ -60,7 +57,7 @@ export default function WalletDetailScreen({ navigation, route }) {
       <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
 
-          {/* Price Hero — uses FlareTokenIcon, no clip art */}
+          {/* Price Hero */}
           <View style={styles.heroCard}>
             <View style={styles.heroTop}>
               <FlareTokenIcon symbol={symbol} size={64} color={Colors.primary} />
@@ -84,14 +81,11 @@ export default function WalletDetailScreen({ navigation, route }) {
             </View>
           </View>
 
-          {/* Quick action buttons */}
+          {/* Quick action buttons — clean outline style, no emoji */}
           <View style={styles.actionsRow}>
             {actions.map((a, i) => (
               <SpringPress key={i} style={styles.actionBtn} onPress={() => navigation.navigate(a.screen, a.params || {})} activeScale={0.93}>
-                <View style={styles.actionBtnInner}>
-                  <Text style={styles.actionIcon}>{a.icon}</Text>
-                  <Text style={styles.actionLabel}>{a.label}</Text>
-                </View>
+                <Text style={styles.actionLabel}>{a.label}</Text>
               </SpringPress>
             ))}
           </View>
@@ -133,7 +127,7 @@ export default function WalletDetailScreen({ navigation, route }) {
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View style={[styles.txIconCircle, { backgroundColor: tx.color + '22' }]}>
                     <Text style={{ fontSize: 14, color: tx.color, fontWeight: '700' }}>
-                      {tx.type === 'Received' ? '↓' : tx.type === 'Sent' ? '↑' : tx.type === 'Bought' ? '↓' : '⇄'}
+                      {tx.direction === 'in' ? '↓' : tx.direction === 'out' ? '↑' : '⇄'}
                     </Text>
                   </View>
                   <Text style={styles.txType}>{tx.type}</Text>
@@ -166,11 +160,10 @@ const styles = StyleSheet.create({
   holdingsLabel: { fontSize: 12, color: Colors.textMuted, marginBottom: 4 },
   holdingsAmount: { fontSize: 20, fontWeight: '700', color: Colors.text, marginBottom: 2 },
   holdingsFiat: { fontSize: 14, color: Colors.textSecondary },
+  // Actions — clean outline buttons
   actionsRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 8, marginBottom: 16 },
-  actionBtn: { flex: 1, backgroundColor: Colors.surface, borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: Colors.border },
-  actionBtnInner: { alignItems: 'center' },
-  actionIcon: { fontSize: 20, marginBottom: 4 },
-  actionLabel: { fontSize: 11, fontWeight: '600', color: Colors.textSecondary },
+  actionBtn: { flex: 1, backgroundColor: Colors.surface, borderRadius: 14, paddingVertical: 14, alignItems: 'center', borderWidth: 1.5, borderColor: Colors.primary },
+  actionLabel: { fontSize: 13, fontWeight: '700', color: Colors.primary },
   aboutCard: { margin: 16, backgroundColor: Colors.surface, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: Colors.border },
   sectionTitle: { fontSize: 16, fontWeight: '700', color: Colors.text, marginBottom: 12 },
   aboutRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8 },

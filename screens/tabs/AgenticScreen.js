@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { useLivePrices, useBlockScanner } from '../../services/LivePriceService';
-import { CRYPTO_HOLDINGS, computePortfolioTotal, computePortfolioChange, getAssetUSDValue } from '../../constants/holdings';
+import { CRYPTO_HOLDINGS, getAssetUSDValue } from '../../constants/holdings';
 import { FLARE_NETWORK_NAME } from '../../appConfig';
 import ScreenHeader from '../../components/ScreenHeader';
 import FlareTokenIcon from '../../components/FlareTokenIcon';
@@ -10,30 +10,20 @@ import FlareTokenIcon from '../../components/FlareTokenIcon';
 export default function AgenticScreen({ navigation }) {
   const { prices, source } = useLivePrices();
   const { blockData, loading: scannerLoading } = useBlockScanner();
-  const total = computePortfolioTotal(prices);
-  const change = computePortfolioChange(prices);
-  const isPositive = change.changeAmount >= 0;
 
   const insights = [
     { icon: '🔥', title: 'FTSOv2 Oracle Active', text: `Live price feeds for 8 assets via Flare FTSOv2 on ${FLARE_NETWORK_NAME}` },
-    { icon: '⚖️', title: 'Portfolio Balance', text: `Total portfolio value $${total.toLocaleString('en-US', { maximumFractionDigits: 2 })} across crypto and fiat` },
     { icon: '🛡️', title: 'FAsset Coverage', text: 'FXRP is the only FAsset deployed on Coston2. FBTC/FDOGE coming to mainnet.' },
-    { icon: '📈', title: isPositive ? 'Portfolio Up' : 'Portfolio Down', text: `${isPositive ? '+' : ''}${change.changePercent}% ($${Math.abs(change.changeAmount).toFixed(2)}) in the last session` },
+    { icon: '⛓️', title: 'Block Scanner Live', text: blockData ? `Latest block #${blockData.blockNumber?.toLocaleString()} · Gas: ${blockData.gasPrice}` : 'Connecting to Coston2 RPC...' },
   ];
 
+  // Quick actions — clean text buttons, no clip art icons
   const quickActions = [
-    { label: 'Send', icon: '📤', screen: 'Send' },
-    { label: 'Receive', icon: '📥', screen: 'Receive' },
-    { label: 'Markets', icon: '📊', screen: 'Prices' },
-    { label: 'Wallet', icon: '💼', screen: 'wallet' },
+    { label: 'Send', screen: 'Send' },
+    { label: 'Receive', screen: 'Receive' },
+    { label: 'Markets', screen: 'Prices' },
+    { label: 'Wallet', screen: 'wallet' },
   ];
-
-  // Format block time
-  const formatBlockTime = (ts) => {
-    if (!ts) return '—';
-    const d = new Date(ts * 1000);
-    return d.toLocaleTimeString();
-  };
 
   // Format time ago
   const timeAgo = (ts) => {
@@ -51,32 +41,21 @@ export default function AgenticScreen({ navigation }) {
         {/* AI Status Card */}
         <View style={styles.aiCard}>
           <View style={styles.aiAvatar}>
-            <Text style={styles.aiAvatarText}>🤖</Text>
+            <Text style={styles.aiAvatarText}>🔥</Text>
           </View>
           <View style={styles.aiInfo}>
             <Text style={styles.aiName}>Flare AI</Text>
             <Text style={styles.aiStatus}>Online · {source === 'ftso-live' ? 'Live Oracle' : 'Demo Mode'}</Text>
           </View>
-          {/* Flare branding badge */}
           <View style={styles.flareBadge}>
             <Text style={styles.flareBadgeText}>🔥 Flare</Text>
           </View>
         </View>
 
-        {/* Portfolio Summary */}
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryLabel}>Portfolio Value</Text>
-          <Text style={styles.summaryValue}>${total.toLocaleString('en-US', { maximumFractionDigits: 2 })}</Text>
-          <Text style={[styles.summaryChange, { color: isPositive ? Colors.success : Colors.error }]}>
-            {isPositive ? '+' : ''}{change.changePercent}% ({isPositive ? '+' : '-'}${Math.abs(change.changeAmount).toFixed(2)})
-          </Text>
-        </View>
-
-        {/* Quick Actions */}
+        {/* Quick Actions — clean outline buttons, no clip art */}
         <View style={styles.quickRow}>
           {quickActions.map(action => (
             <TouchableOpacity key={action.label} style={styles.quickBtn} onPress={() => navigation.navigate(action.screen)}>
-              <Text style={styles.quickIcon}>{action.icon}</Text>
               <Text style={styles.quickLabel}>{action.label}</Text>
             </TouchableOpacity>
           ))}
@@ -94,7 +73,7 @@ export default function AgenticScreen({ navigation }) {
           </View>
         ))}
 
-        {/* Block Scanner */}
+        {/* Block Scanner — front and center, no portfolio bubble above it */}
         <Text style={styles.sectionTitle}>⛓️ Coston2 Block Scanner</Text>
         {scannerLoading && !blockData ? (
           <View style={styles.scannerCard}>
@@ -190,21 +169,17 @@ const styles = StyleSheet.create({
   aiStatus: { fontSize: 12, color: Colors.success, marginTop: 2 },
   flareBadge: { backgroundColor: Colors.primary, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   flareBadgeText: { fontSize: 11, fontWeight: '700', color: '#FFF' },
-  summaryCard: { backgroundColor: Colors.primary, borderRadius: 20, padding: 24, marginBottom: 12 },
-  summaryLabel: { fontSize: 14, color: '#FFF', opacity: 0.8, marginBottom: 4 },
-  summaryValue: { fontSize: 36, fontWeight: '800', color: '#FFF' },
-  summaryChange: { fontSize: 14, fontWeight: '600', marginTop: 4 },
+  // Quick actions — clean outline style, no emoji icons
   quickRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
-  quickBtn: { flex: 1, backgroundColor: Colors.surface, borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: Colors.border },
-  quickIcon: { fontSize: 24, marginBottom: 4 },
-  quickLabel: { fontSize: 12, fontWeight: '600', color: Colors.textSecondary },
+  quickBtn: { flex: 1, backgroundColor: Colors.surface, borderRadius: 14, paddingVertical: 14, alignItems: 'center', borderWidth: 1.5, borderColor: Colors.primary },
+  quickLabel: { fontSize: 13, fontWeight: '700', color: Colors.primary },
   sectionTitle: { fontSize: 18, fontWeight: '700', color: Colors.text, marginBottom: 12, marginTop: 8 },
   insightCard: { flexDirection: 'row', backgroundColor: Colors.surface, borderRadius: 14, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: Colors.border },
   insightIcon: { fontSize: 24, marginRight: 12 },
   insightInfo: { flex: 1 },
   insightTitle: { fontSize: 14, fontWeight: '700', color: Colors.text },
   insightText: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 18 },
-  // Block scanner styles
+  // Block scanner
   scannerStatsRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   scannerStat: { flex: 1, backgroundColor: Colors.surface, borderRadius: 14, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: Colors.border },
   scannerStatLabel: { fontSize: 11, color: Colors.textMuted, fontWeight: '500', marginBottom: 4 },
