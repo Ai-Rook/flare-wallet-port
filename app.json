@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "rain-app",
-    "slug": "rain-app",
+    "name": "Flare Wallet",
+    "slug": "flare-wallet",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

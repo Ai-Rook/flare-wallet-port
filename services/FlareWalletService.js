@@ -32,14 +32,45 @@ const ERC20_ABI = [
   'function approve(address spender, uint256 amount) returns (bool)',
 ];
 
+// ── FlareContractsRegistry (same on all Flare networks) ────────────
+const FLARE_REGISTRY = '0xaD67FE66660Fb8dFE9d6b1b4240d8650e30F6019';
+const REGISTRY_ABI = [
+  'function getContractAddressByName(string) view returns (address)',
+];
+const ASSET_MGR_ABI = [
+  'function fAsset() view returns (address)',
+];
+
 // ── FAsset contract addresses on Coston2 ───────────────────────────
-// These are the ERC-20 token contracts for FAssets on Flare testnet.
-// In production, these would be queried via FlareContractRegistry.
+// Resolved via FlareContractsRegistry at runtime.
+// FXRP is the only FAsset currently deployed on Coston2.
+// FBTC/FDOGE are not yet available on testnet.
 const FASSET_ADDRESSES = {
-  FXRP: null, // Look up via ContractRegistry at runtime
-  FBTC: null,
-  FDOGE: null,
+  FXRP: '0x0b6A3645c240605887a5532109323A3E12273dc7',
+  FBTC: null,  // Not deployed on Coston2
+  FDOGE: null, // Not deployed on Coston2
 };
+
+// ── Runtime FAsset resolver (proper pattern) ───────────────────────
+async function resolveFAssetAddress(symbol) {
+  // Return cached if available
+  if (FASSET_ADDRESSES[symbol]) return FASSET_ADDRESSES[symbol];
+  try {
+    const reg = new ethers.Contract(FLARE_REGISTRY, REGISTRY_ABI, provider);
+    const mgrAddr = await reg.getContractAddressByName('AssetManager' + symbol);
+    if (mgrAddr && mgrAddr !== ethers.ZeroAddress) {
+      const mgr = new ethers.Contract(mgrAddr, ASSET_MGR_ABI, provider);
+      const tokenAddr = await mgr.fAsset();
+      if (tokenAddr && tokenAddr !== ethers.ZeroAddress) {
+        FASSET_ADDRESSES[symbol] = tokenAddr; // cache for subsequent calls
+        return tokenAddr;
+      }
+    }
+  } catch (e) {
+    console.warn('[FlareWallet] Could not resolve FAsset ' + symbol + ':', e.message);
+  }
+  return null;
+}
 
 // ── FlareWalletService singleton ───────────────────────────────────
 class FlareWalletService {
@@ -94,10 +125,10 @@ class FlareWalletService {
     // Native FLR
     balances.FLR = await this.getNativeBalance(address);
 
-    // ERC-20 tokens (FAssets)
+    // ERC-20 tokens (FAssets) — resolve addresses at runtime
     for (const token of tokens) {
       if (token.flareNative && token.fAsset) {
-        const tokenAddress = FASSET_ADDRESSES[token.symbol];
+        const tokenAddress = await resolveFAssetAddress(token.symbol);
         balances[token.symbol] = await this.getERC20Balance(address, tokenAddress, token.decimals);
       }
     }
@@ -144,6 +175,21 @@ class FlareWalletService {
       explorerUrl: `${FLARE_EXPLORER}/tx/${tx.hash}`,
       wait: () => tx.wait(),
     };
+  }
+
+  /**
+   * Send FAsset token (resolves address via registry)
+   * @param {string} privateKey - sender private key
+   * @param {string} symbol - FAsset symbol (FXRP, FBTC, FDOGE)
+   * @param {string} toAddress - recipient
+   * @param {string} amount - human-readable amount
+   * @param {number} decimals - token decimals
+   * @returns {Promise<Object>} transaction info
+   */
+  async sendFAsset(privateKey, symbol, toAddress, amount, decimals = 18) {
+    const tokenAddress = await resolveFAssetAddress(symbol);
+    if (!tokenAddress) throw new Error('FAsset ' + symbol + ' not available on this network');
+    return this.sendERC20(privateKey, tokenAddress, toAddress, amount, decimals);
   }
 
   /**
