@@ -1,222 +1,205 @@
-import ScreenHeader from '../../components/ScreenHeader';
-import React, { useState, useEffect } from 'react';
-import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar, TextInput, RefreshControl,
-} from 'react-native';
-import { useLivePrices } from '../../services/LivePriceService';
-import {
-  CRYPTO_HOLDINGS, FIAT_HOLDINGS,
-  computePortfolioTotal, computePortfolioChange, getAssetUSDValue,
-} from '../../constants/holdings';
-
-function formatUSD(val) {
-  if (val >= 1000) return '$' + val.toLocaleString('en-US', { maximumFractionDigits: 0 });
-  return '$' + val.toLocaleString('en-US', { maximumFractionDigits: 2 });
-}
-
-function formatAmount(amt) {
-  if (amt >= 1000) return amt.toLocaleString('en-US', { maximumFractionDigits: 2 });
-  if (amt >= 1) return amt.toFixed(4);
-  return amt.toFixed(6);
-}
+import React, { useState, useCallback } from 'react';
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, RefreshControl, SafeAreaView } from 'react-native';
+import { Colors } from '../constants/colors';
+import { useLivePrices } from '../services/LivePriceService';
+import { CRYPTO_HOLDINGS, FIAT_HOLDINGS, computePortfolioTotal, computePortfolioChange, getAssetUSDValue } from '../constants/holdings';
+import { DEMO_WALLET_ADDRESS, FLARE_EXPLORER, FLARE_NETWORK_NAME } from '../appConfig';
+import ScreenHeader from '../components/ScreenHeader';
 
 export default function WalletScreen({ navigation }) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
+  const { prices, lastUpdated, source, refresh } = useLivePrices();
   const [refreshing, setRefreshing] = useState(false);
-  const { prices, refresh, source } = useLivePrices();
 
-  const onRefresh = async () => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refresh();
     setRefreshing(false);
-  };
+  }, [refresh]);
 
-  const filteredTokens = CRYPTO_HOLDINGS.filter(w =>
-    w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    w.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const portfolioTotal = computePortfolioTotal(prices);
+  const portfolioChange = computePortfolioChange(prices);
+  const isPositive = portfolioChange.changeAmount >= 0;
 
-  const filteredFiat = FIAT_HOLDINGS.filter(f =>
-    f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    f.code.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const totalValue = computePortfolioTotal(prices);
-  const change = computePortfolioChange(prices);
-
-  const sourceLabel = source === 'ftso-proxy' || source === 'ftso-direct'
-    ? '⚡ Live via Flare FTSOv2'
-    : source === 'fallback'
-    ? '📊 Demo prices (FTSO offline)'
-    : 'Loading prices...';
+  const sourceLabel = source === 'ftso-live' ? '🔥 Live FTSOv2 Oracle' : '📊 Demo Prices';
+  const updatedTime = lastUpdated ? lastUpdated.toLocaleTimeString() : '—';
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" />
-      <ScreenHeader
-        pageName="Wallet"
-        rightAction={
-          <TouchableOpacity onPress={() => navigation.navigate('Profile')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} style={{ padding: 8 }}>
-            <Text style={{ color: '#FFF', fontSize: 20 }}>◉</Text>
-          </TouchableOpacity>
-        }
-      />
-
-      <View style={styles.content}>
-        {/* Portfolio summary */}
+    <SafeAreaView style={styles.container}>
+      <ScreenHeader title="Wallet" subtitle={FLARE_NETWORK_NAME} />
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}
+      >
+        {/* Portfolio Total Card */}
         <View style={styles.portfolioCard}>
-          <Text style={styles.portfolioLabel}>Total Portfolio Value</Text>
-          <Text style={styles.portfolioValue}>{formatUSD(totalValue)}</Text>
-          <View style={styles.changeRow}>
-            <Text style={[styles.changeText, { color: change.changePercent >= 0 ? '#2ECC71' : '#E74C3C' }]}>
-              {change.changePercent >= 0 ? '↑' : '↓'} {formatUSD(Math.abs(change.changeAmount))} ({change.changePercent > 0 ? '+' : ''}{change.changePercent.toFixed(2)}%)
-            </Text>
+          <View style={styles.portfolioHeader}>
+            <Text style={styles.portfolioLabel}>Total Balance</Text>
+            <View style={styles.sourceBadge}>
+              <Text style={styles.sourceText}>{sourceLabel}</Text>
+            </View>
           </View>
-          <Text style={styles.portfolioOracle}>{sourceLabel}</Text>
+          <Text style={styles.portfolioValue}>${portfolioTotal.toLocaleString('en-US', { maximumFractionDigits: 2 })}</Text>
+          <View style={styles.changeRow}>
+            <Text style={[styles.changeAmount, { color: isPositive ? Colors.success : Colors.error }]}>
+              {isPositive ? '+' : ''}${Math.abs(portfolioChange.changeAmount).toFixed(2)}
+            </Text>
+            <Text style={[styles.changePercent, { color: isPositive ? Colors.success : Colors.error }]}>
+              {isPositive ? '+' : ''}{portfolioChange.changePercent}%
+            </Text>
+            <Text style={styles.updatedText}>Updated {updatedTime}</Text>
+          </View>
         </View>
 
-        {/* Search */}
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search assets..."
-            placeholderTextColor="#9E8E83"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
+        {/* Demo Wallet Address */}
+        <View style={styles.addressCard}>
+          <Text style={styles.addressLabel}>Wallet Address</Text>
+          <Text style={styles.addressValue}>{DEMO_WALLET_ADDRESS.slice(0, 8)}...{DEMO_WALLET_ADDRESS.slice(-6)}</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Receive')}>
+            <Text style={styles.receiveLink}>📥 Receive Funds</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Filters */}
-        <View style={styles.filterRow}>
-          {['all', 'crypto', 'fiat'].map(f => (
+        {/* Crypto Assets */}
+        <Text style={styles.sectionTitle}>Crypto Assets</Text>
+        {CRYPTO_HOLDINGS.map((asset) => {
+          const key = asset.underlying || asset.symbol;
+          const priceData = prices[key];
+          const usdValue = getAssetUSDValue(asset, prices);
+          const price = priceData?.price || 0;
+          const change = priceData?.change24h || 0;
+          const isUp = change >= 0;
+
+          return (
             <TouchableOpacity
-              key={f}
-              style={[styles.filterBtn, activeFilter === f && styles.filterActive]}
-              onPress={() => setActiveFilter(f)}
+              key={asset.symbol}
+              style={styles.assetCard}
+              onPress={() => navigation.navigate('WalletDetail', { symbol: asset.symbol })}
             >
-              <Text style={[styles.filterText, activeFilter === f && styles.filterTextActive]}>
-                {f === 'all' ? 'All' : f === 'crypto' ? 'Flare Assets' : 'Fiat'}
-              </Text>
+              <View style={[styles.assetIcon, { backgroundColor: asset.color + '20' }]}>
+                <Text style={styles.assetIconText}>{asset.symbol.slice(0, 2)}</Text>
+              </View>
+              <View style={styles.assetInfo}>
+                <Text style={styles.assetName}>{asset.name}</Text>
+                <Text style={styles.assetAmount}>{asset.amount.toLocaleString()} {asset.symbol}</Text>
+              </View>
+              <View style={styles.assetPriceCol}>
+                <Text style={styles.assetPrice}>${price.toLocaleString('en-US', { maximumFractionDigits: 4 })}</Text>
+                <Text style={[styles.assetChange, { color: isUp ? Colors.success : Colors.error }]}>
+                  {isUp ? '▲' : '▼'} {Math.abs(change).toFixed(2)}%
+                </Text>
+                <Text style={styles.assetUsdValue}>${usdValue.toLocaleString('en-US', { maximumFractionDigits: 2 })}</Text>
+              </View>
             </TouchableOpacity>
-          ))}
+          );
+        })}
+
+        {/* Fiat Holdings */}
+        <Text style={styles.sectionTitle}>Fiat Wallet</Text>
+        {FIAT_HOLDINGS.map((fiat) => (
+          <View key={fiat.code} style={styles.assetCard}>
+            <View style={styles.assetIcon}>
+              <Text style={styles.assetIconText}>{fiat.flag}</Text>
+            </View>
+            <View style={styles.assetInfo}>
+              <Text style={styles.assetName}>{fiat.name}</Text>
+              <Text style={styles.assetAmount}>{fiat.amount.toLocaleString()} {fiat.code}</Text>
+            </View>
+            <View style={styles.assetPriceCol}>
+              <Text style={styles.assetPrice}>${(fiat.amount / fiat.rate).toLocaleString('en-US', { maximumFractionDigits: 2 })}</Text>
+              <Text style={styles.assetChange}>1 USD = {fiat.rate} {fiat.code}</Text>
+            </View>
+          </View>
+        ))}
+
+        {/* Actions */}
+        <View style={styles.actionsRow}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('Send')}>
+            <Text style={styles.actionBtnText}>📤 Send</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('Receive')}>
+            <Text style={styles.actionBtnText}>📥 Receive</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('Exchange')}>
+            <Text style={styles.actionBtnText}>🔄 Swap</Text>
+          </TouchableOpacity>
         </View>
 
-        <ScrollView
-          contentContainerStyle={{ paddingBottom: 100 }}
-          showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF6300" />}
-        >
-          {/* Flare Assets */}
-          {(activeFilter === 'all' || activeFilter === 'crypto') && (
-            <>
-              <Text style={styles.sectionLabel}>Flare Assets ({filteredTokens.length})</Text>
-              {filteredTokens.map((wallet) => {
-                const key = wallet.underlying || wallet.symbol;
-                const price = prices[key];
-                const usdValue = getAssetUSDValue(wallet, prices);
-                const change24h = price ? price.change24h : 0;
-                return (
-                  <TouchableOpacity
-                    key={wallet.symbol}
-                    style={styles.walletRow}
-                    onPress={() => navigation.navigate('WalletDetail', { symbol: wallet.symbol })}
-                  >
-                    <View style={[styles.tokenIcon, { backgroundColor: wallet.color }]}>
-                      <Text style={styles.tokenIconText}>{wallet.symbol === 'FLR' ? '◉' : (wallet.symbol[0])}</Text>
-                    </View>
-                    <View style={styles.walletInfo}>
-                      <Text style={styles.walletName}>{wallet.name}</Text>
-                      <Text style={styles.walletSymbol}>{formatAmount(wallet.amount)} {wallet.symbol}</Text>
-                    </View>
-                    <View style={styles.walletBalance}>
-                      {price ? (
-                        <>
-                          <Text style={styles.walletFiat}>{formatUSD(usdValue)}</Text>
-                          <Text style={[styles.walletPrice, { color: change24h >= 0 ? '#2ECC71' : '#E74C3C' }]}>
-                            {change24h >= 0 ? '+' : ''}{change24h.toFixed(2)}% · ${price.price.toLocaleString('en-US', { maximumFractionDigits: 4 })}
-                          </Text>
-                        </>
-                      ) : (
-                        <Text style={styles.walletPriceMuted}>Loading...</Text>
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
-            </>
-          )}
-
-          {/* Fiat */}
-          {(activeFilter === 'all' || activeFilter === 'fiat') && (
-            <>
-              <Text style={styles.sectionLabel}>Fiat Currencies ({filteredFiat.length})</Text>
-              {filteredFiat.map((fiat) => {
-                const usdValue = fiat.amount / fiat.rate;
-                return (
-                  <TouchableOpacity
-                    key={fiat.code}
-                    style={styles.walletRow}
-                    onPress={() => navigation.navigate('WalletDetail', { symbol: fiat.code })}
-                  >
-                    <Text style={styles.flagIcon}>{fiat.flag}</Text>
-                    <View style={styles.walletInfo}>
-                      <Text style={styles.walletName}>{fiat.name}</Text>
-                      <Text style={styles.walletSymbol}>{fiat.code}</Text>
-                    </View>
-                    <View style={styles.walletBalance}>
-                      <Text style={styles.walletFiat}>{formatUSD(usdValue)}</Text>
-                      <Text style={styles.walletPrice}>{fiat.amount.toLocaleString('en-US', { maximumFractionDigits: 2 })} {fiat.code}</Text>
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
-            </>
-          )}
-        </ScrollView>
-      </View>
+        <View style={{ height: 40 }} />
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#FF6300' },
-  content: { flex: 1, paddingHorizontal: 20, paddingTop: 8, backgroundColor: '#FFF8F0' },
+  container: { flex: 1, backgroundColor: Colors.background },
+  scroll: { flex: 1 },
+  scrollContent: { padding: 16 },
   portfolioCard: {
-    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, marginBottom: 16,
-    borderLeftWidth: 3, borderLeftColor: '#FF6300',
-    shadowColor: '#FF6300', shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
+    backgroundColor: Colors.surface,
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    shadowColor: Colors.shadowColor,
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  portfolioLabel: { fontSize: 12, color: '#9E8E83', fontWeight: '600', marginBottom: 4 },
-  portfolioValue: { fontSize: 28, fontWeight: '700', color: '#1A1A1A' },
-  changeRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
-  changeText: { fontSize: 14, fontWeight: '600' },
-  portfolioOracle: { fontSize: 11, color: '#FF6300', fontWeight: '500', marginTop: 6 },
-  searchContainer: {
-    backgroundColor: '#FFFFFF', borderRadius: 12, height: 44,
-    paddingHorizontal: 14, marginBottom: 12, justifyContent: 'center',
-    shadowColor: '#FF6300', shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
+  portfolioHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  portfolioLabel: { fontSize: 14, color: Colors.textSecondary, fontWeight: '500' },
+  sourceBadge: {
+    backgroundColor: Colors.primary + '15',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
-  searchInput: { fontSize: 15, color: '#1A1A1A' },
-  filterRow: { flexDirection: 'row', marginBottom: 16 },
-  filterBtn: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, marginRight: 8, backgroundColor: '#FFE4D1' },
-  filterActive: { backgroundColor: '#FF6300' },
-  filterText: { fontSize: 13, fontWeight: '600', color: '#9E8E83' },
-  filterTextActive: { color: '#FFF' },
-  sectionLabel: { fontSize: 13, fontWeight: '700', color: '#9E8E83', marginBottom: 8, marginTop: 4 },
-  walletRow: {
-    flexDirection: 'row', alignItems: 'center', paddingVertical: 14,
-    borderBottomWidth: 1, borderBottomColor: '#FFE4D1',
+  sourceText: { fontSize: 11, color: Colors.primary, fontWeight: '600' },
+  portfolioValue: { fontSize: 36, fontWeight: '800', color: Colors.text, marginBottom: 8 },
+  changeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  changeAmount: { fontSize: 15, fontWeight: '700' },
+  changePercent: { fontSize: 15, fontWeight: '600', marginRight: 8 },
+  updatedText: { fontSize: 12, color: Colors.textMuted, marginLeft: 'auto' },
+  addressCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    alignItems: 'center',
   },
-  tokenIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
-  tokenIconText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
-  flagIcon: { fontSize: 28, marginRight: 12, width: 40, textAlign: 'center' },
-  walletInfo: { flex: 1 },
-  walletName: { fontSize: 15, fontWeight: '600', color: '#1A1A1A' },
-  walletSymbol: { fontSize: 12, color: '#9E8E83', marginTop: 1 },
-  walletBalance: { alignItems: 'flex-end' },
-  walletFiat: { fontSize: 15, fontWeight: '700', color: '#1A1A1A' },
-  walletPrice: { fontSize: 11, color: '#9E8E83', marginTop: 1 },
-  walletPriceMuted: { fontSize: 13, color: '#9E8E83' },
+  addressLabel: { fontSize: 12, color: Colors.textMuted, marginBottom: 4 },
+  addressValue: { fontSize: 16, fontWeight: '700', color: Colors.text, marginBottom: 8, fontFamily: 'monospace' },
+  receiveLink: { fontSize: 14, color: Colors.primary, fontWeight: '600' },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: Colors.text, marginBottom: 12, marginTop: 8 },
+  assetCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  assetIcon: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  assetIconText: { fontSize: 16, fontWeight: '700' },
+  assetInfo: { flex: 1 },
+  assetName: { fontSize: 15, fontWeight: '600', color: Colors.text },
+  assetAmount: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
+  assetPriceCol: { alignItems: 'flex-end' },
+  assetPrice: { fontSize: 15, fontWeight: '700', color: Colors.text },
+  assetChange: { fontSize: 12, fontWeight: '500', marginTop: 2 },
+  assetUsdValue: { fontSize: 12, color: Colors.textMuted, marginTop: 2 },
+  actionsRow: { flexDirection: 'row', gap: 8, marginTop: 16 },
+  actionBtn: {
+    flex: 1,
+    backgroundColor: Colors.primary,
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  actionBtnText: { color: '#FFF', fontSize: 14, fontWeight: '700' },
 });

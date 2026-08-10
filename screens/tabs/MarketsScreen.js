@@ -1,150 +1,116 @@
-import ScreenHeader from '../../components/ScreenHeader';
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  View, Text, Image, ScrollView, StyleSheet, SafeAreaView, StatusBar, Animated, TouchableOpacity,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Colors } from '../../constants/colors';
-import { TOKENS } from '../../constants/tokens';
-import { iconMap } from '../../components/TokenIcon';
-import { HeroIcon } from '../../components/HeroMorph';
-import SpringPress from '../../components/SpringPress';
-import marketData from '../../constants/marketData.json';
+import React from 'react';
+import { ScrollView, View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { Colors } from '../constants/colors';
+import { useLivePrices } from '../services/LivePriceService';
+import ScreenHeader from '../components/ScreenHeader';
 
-// Format helpers
-const fmtPrice = (p) => {
-  if (p >= 1000) return '$' + p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  if (p >= 1) return '$' + p.toFixed(2);
-  if (p >= 0.01) return '$' + p.toFixed(4);
-  return '$' + p.toFixed(8);
-};
-const fmtCap = (c) => {
-  if (c >= 1e12) return '$' + (c / 1e12).toFixed(2) + 'T';
-  if (c >= 1e9) return '$' + (c / 1e9).toFixed(2) + 'B';
-  if (c >= 1e6) return '$' + (c / 1e6).toFixed(1) + 'M';
-  return '$' + c.toLocaleString();
-};
-const fmtVol = (v) => fmtCap(v);
+const FEED_INFO = [
+  { symbol: 'FLR', name: 'Flare', color: '#FFD700' },
+  { symbol: 'BTC', name: 'Bitcoin', color: '#F7931A' },
+  { symbol: 'ETH', name: 'Ethereum', color: '#627EEA' },
+  { symbol: 'XRP', name: 'XRP', color: '#23292F' },
+  { symbol: 'DOGE', name: 'Dogecoin', color: '#C2A633' },
+  { symbol: 'LTC', name: 'Litecoin', color: '#345D9D' },
+  { symbol: 'SOL', name: 'Solana', color: '#9945FF' },
+  { symbol: 'ADA', name: 'Cardano', color: '#0033AD' },
+];
+
+// Generate a simple sparkline from the current price + change
+function Sparkline({ change24h }) {
+  const isUp = change24h >= 0;
+  const color = isUp ? Colors.success : Colors.error;
+  const points = [];
+  for (let i = 0; i < 20; i++) {
+    const x = (i / 19) * 100;
+    const y = 50 + Math.sin(i * 0.5 + (isUp ? 0 : Math.PI)) * 15 + (isUp ? -i * 0.8 : i * 0.8);
+    points.push(`${x},${y}`);
+  }
+  return (
+    <View style={styles.sparkline}>
+      {points.map((p, i) => {
+        const [x, y] = p.split(',');
+        return <View key={i} style={[styles.sparkDot, { left: parseFloat(x) * 1.5, top: parseFloat(y), backgroundColor: color }]} />;
+      })}
+    </View>
+  );
+}
 
 export default function MarketsScreen({ navigation }) {
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const headerOpacity = scrollY.interpolate({ inputRange: [0, 60], outputRange: [0, 1], extrapolate: 'clamp' });
+  const { prices, source, lastUpdated } = useLivePrices();
 
-  const cryptoTokens = TOKENS.filter(t => t.type === 'crypto');
+  const sourceLabel = source === 'ftso-live' ? '🔥 Live FTSOv2 Oracle' : '📊 Demo Prices';
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" />
-      <ScreenHeader
-        pageName="Markets"
-        rightAction={
-          <TouchableOpacity onPress={() => navigation.navigate('Profile')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} style={{ padding: 8 }}>
-            <Text style={{ color: '#FFF', fontSize: 20 }}>👤</Text>
-          </TouchableOpacity>
-        }
-      />
-
-      <Animated.ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-        scrollEventThrottle={16}
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
-      >
-        {/* Market overview */}
-        <View style={styles.overviewCard}>
-          <Text style={styles.overviewTitle}>Global Market</Text>
-          <View style={styles.overviewRow}>
-            <View style={styles.overviewStat}>
-              <Text style={styles.overviewLabel}>BTC Dominance</Text>
-              <Text style={styles.overviewValue}>52.1%</Text>
-            </View>
-            <View style={styles.overviewStat}>
-              <Text style={styles.overviewLabel}>24h Volume</Text>
-              <Text style={styles.overviewValue}>$78.2B</Text>
-            </View>
-            <View style={styles.overviewStat}>
-              <Text style={styles.overviewLabel}>Market Cap</Text>
-              <Text style={styles.overviewValue}>$2.38T</Text>
-            </View>
-          </View>
+    <SafeAreaView style={styles.container}>
+      <ScreenHeader title="Markets" subtitle="FTSOv2 Price Feeds" />
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+        <View style={styles.sourceRow}>
+          <Text style={styles.sourceLabel}>{sourceLabel}</Text>
+          {lastUpdated && <Text style={styles.updatedText}>Updated {lastUpdated.toLocaleTimeString()}</Text>}
         </View>
 
-        {/* Token list with market data */}
-        {cryptoTokens.map((token) => {
-          const data = marketData[token.id] || {};
-          const isExpanded = false; // removed expanded card
+        {FEED_INFO.map((feed) => {
+          const data = prices[feed.symbol];
+          const price = data?.price || 0;
+          const change = data?.change24h || 0;
+          const isUp = change >= 0;
 
           return (
-            <View key={token.id}>
-              <SpringPress
-                style={styles.assetRow}
-                onPress={() => navigation.navigate('MarketDetail', { symbol: token.symbol })}
-              >
-                <View style={styles.rowContent}>
-                  <HeroIcon id={token.id} source={iconMap[token.id]} size={40} />
-                  <View style={styles.assetInfo}>
-                    <Text style={styles.assetName}>{token.name}</Text>
-                    <Text style={styles.assetSymbol}>{token.symbol}</Text>
-                  </View>
-                  <View style={styles.assetPrice}>
-                    <Text style={styles.priceValue}>{fmtPrice(data.price || 0)}</Text>
-                    <Text style={[
-                      styles.changeValue,
-                      { color: (data.change24h || 0) >= 0 ? Colors.success : Colors.error }
-                    ]}>
-                      {(data.change24h || 0) >= 0 ? '+' : ''}{(data.change24h || 0).toFixed(2)}%
-                    </Text>
-                  </View>
-                </View>
-              </SpringPress>
-
-
-            </View>
+            <TouchableOpacity
+              key={feed.symbol}
+              style={styles.feedCard}
+              onPress={() => navigation.navigate('MarketDetail', { symbol: feed.symbol })}
+            >
+              <View style={[styles.feedIcon, { backgroundColor: feed.color + '20' }]}>
+                <Text style={styles.feedIconText}>{feed.symbol.slice(0, 2)}</Text>
+              </View>
+              <View style={styles.feedInfo}>
+                <Text style={styles.feedName}>{feed.name}</Text>
+                <Text style={styles.feedPair}>{feed.symbol}/USD</Text>
+              </View>
+              <Sparkline change24h={change} />
+              <View style={styles.feedPriceCol}>
+                <Text style={styles.feedPrice}>${price.toLocaleString('en-US', { maximumFractionDigits: 4 })}</Text>
+                <Text style={[styles.feedChange, { color: isUp ? Colors.success : Colors.error }]}>
+                  {isUp ? '▲' : '▼'} {Math.abs(change).toFixed(2)}%
+                </Text>
+              </View>
+            </TouchableOpacity>
           );
         })}
 
-        <View style={{ height: 40 }} />
-      </Animated.ScrollView>
+        <View style={styles.ftsoCard}>
+          <Text style={styles.ftsoTitle}>Flare Time Series Oracle v2</Text>
+          <Text style={styles.ftsoText}>
+            FTSOv2 provides decentralized price feeds for the Flare network. Prices are aggregated from independent data providers and updated every ~90 seconds on Coston2.
+          </Text>
+          <Text style={styles.ftsoContract}>Contract: 0x3d893C53D9e8056135C26C8c638B76C8b60Df726</Text>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F2F2F7' },
-  header: {
-    height: 56, flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-between', paddingHorizontal: 16,
-  },
-  headerLogoText: { color: '#FFF', fontSize: 20, fontWeight: '700', marginRight: 6 },
-  headerIcon: { fontSize: 22 },
-  profileBtn: { padding: 8 },
-  brandText: { color: '#FFF', fontSize: 18, fontWeight: '700', letterSpacing: 0.5 },
-  pageName: { color: 'rgba(255,255,255,0.7)', fontSize: 18, fontWeight: '400' },
-  headerTitle: { color: '#FFF', fontSize: 18, fontWeight: '600' },
-  content: { flex: 1, paddingHorizontal: 16, paddingTop: 8, backgroundColor: '#F2F2F7' },
-
-  // Global market overview
-  overviewCard: {
-    backgroundColor: '#FFFFFF', borderRadius: 14, padding: 16, marginBottom: 12,
-  },
-  overviewTitle: { fontSize: 15, fontWeight: '700', color: '#1C1C1E', marginBottom: 10 },
-  overviewRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  overviewStat: { flex: 1 },
-  overviewLabel: { fontSize: 11, color: Colors.textLight, marginBottom: 2 },
-  overviewValue: { fontSize: 15, fontWeight: '600', color: Colors.text },
-
-  // Asset rows
-  assetRow: {
-    borderBottomWidth: 1, borderBottomColor: '#E5E5EA',
-  },
-  rowContent: {
-    flexDirection: 'row', alignItems: 'center', paddingVertical: 14,
-  },
-  assetInfo: { flex: 1, marginLeft: 12 },
-  assetName: { fontSize: 15, fontWeight: '600', color: Colors.text },
-  assetSymbol: { fontSize: 12, color: Colors.textLight, marginTop: 1 },
-  assetPrice: { alignItems: 'flex-end' },
-  priceValue: { fontSize: 15, fontWeight: '600', color: Colors.text },
-  changeValue: { fontSize: 12, fontWeight: '500', marginTop: 2 },
-
+  container: { flex: 1, backgroundColor: Colors.background },
+  scroll: { flex: 1 },
+  content: { padding: 16 },
+  sourceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  sourceLabel: { fontSize: 13, fontWeight: '700', color: Colors.primary },
+  updatedText: { fontSize: 12, color: Colors.textMuted },
+  feedCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.surface, borderRadius: 16, padding: 16, marginBottom: 8, borderWidth: 1, borderColor: Colors.border },
+  feedIcon: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  feedIconText: { fontSize: 14, fontWeight: '700' },
+  feedInfo: { flex: 1 },
+  feedName: { fontSize: 15, fontWeight: '600', color: Colors.text },
+  feedPair: { fontSize: 12, color: Colors.textMuted, marginTop: 2 },
+  sparkline: { width: 60, height: 40, position: 'relative', marginRight: 8 },
+  sparkDot: { position: 'absolute', width: 2, height: 2, borderRadius: 1 },
+  feedPriceCol: { alignItems: 'flex-end', minWidth: 90 },
+  feedPrice: { fontSize: 15, fontWeight: '700', color: Colors.text },
+  feedChange: { fontSize: 12, fontWeight: '600', marginTop: 2 },
+  ftsoCard: { backgroundColor: Colors.primary + '08', borderRadius: 16, padding: 16, marginTop: 8, borderWidth: 1, borderColor: Colors.border },
+  ftsoTitle: { fontSize: 16, fontWeight: '700', color: Colors.primary, marginBottom: 8 },
+  ftsoText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20, marginBottom: 8 },
+  ftsoContract: { fontSize: 11, color: Colors.textMuted, fontFamily: 'monospace' },
 });
