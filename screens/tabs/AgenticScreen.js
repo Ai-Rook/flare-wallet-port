@@ -1,366 +1,237 @@
 import ScreenHeader from '../../components/ScreenHeader';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView,
-  StatusBar, Alert, Switch, TextInput,
+  StatusBar, ActivityIndicator, RefreshControl,
 } from 'react-native';
 import { Colors } from '../../constants/colors';
-import SpringPress from '../../components/SpringPress';
+import { FLARE_RPC, FLARE_CHAIN_ID, FLARE_EXPLORER } from '../../appConfig';
 
-const MOCK_WALLET = '0x742d35Cc6634C0532925a3b844Bc9e7595f2b3a5f';
-
-const MOCK_TX = [
-  { id: 1, action: 'Data Fetch', cost: '$0.002', time: '2m ago', status: '✅' },
-  { id: 2, action: 'API Call', cost: '$0.005', time: '15m ago', status: '✅' },
-  { id: 3, action: 'Model Inference', cost: '$0.012', time: '1h ago', status: '✅' },
-  { id: 4, action: 'Storage Write', cost: '$0.001', time: '3h ago', status: '✅' },
-  { id: 5, action: 'Image Gen', cost: '$0.008', time: '5h ago', status: '✅' },
-  { id: 6, action: 'Webhook Post', cost: '$0.001', time: '8h ago', status: '⚠️' },
+// FTSOv2 contract on Coston2
+const FTSOV2_ADDRESS = '0x3d893C53D9e8056135C26C8c638B76C8b60Df726';
+const FTSO_FEEDS = [
+  { symbol: 'FLR/USD', id: '0x01464c522f55534400000000000000000000000000', color: '#FFD700' },
+  { symbol: 'BTC/USD', id: '0x014254432f55534400000000000000000000000000', color: '#F7931A' },
+  { symbol: 'ETH/USD', id: '0x014554482f55534400000000000000000000000000', color: '#627EEA' },
+  { symbol: 'XRP/USD', id: '0x015852502f55534400000000000000000000000000', color: '#23292F' },
+  { symbol: 'DOGE/USD', id: '0x01444f47452f55534400000000000000000000000000', color: '#C2A633' },
 ];
 
-const MOCK_AGENTS = [
-  { name: 'Rook Agent', status: 'Active', statusColor: '#34C759', spent: '$2.40', icon: '🤖' },
-  { name: 'Market Scanner', status: 'Active', statusColor: '#34C759', spent: '$0.85', icon: '📊' },
-  { name: 'Trade Executor', status: 'Idle', statusColor: '#8E8E93', spent: '$0.00', icon: '⚡' },
+// x402 endpoints on Flare
+const X402_ENDPOINTS = [
+  { name: 'Legal Research', url: '/api/legal-research', price: '$0.05', desc: 'Onchain provenance for legal research — CourtListener, Federal Register, Cornell LII', icon: '⚖️' },
+  { name: 'Market Pulse', url: '/api/market-pulse', price: '$0.05', desc: 'Real-time BTC/ETH market data from live trading engine', icon: '📊' },
+  { name: 'AI Analysis', url: '/api/ai-analysis', price: '$0.10', desc: 'AI-powered market analysis and predictions', icon: '🤖' },
+  { name: 'Order Flow', url: '/api/order-flow', price: '$0.25', desc: 'CVD, OI, whale flow, session levels from live engine', icon: '🌊' },
+  { name: 'Trade Ideas', url: '/api/trade-idea', price: '$0.25', desc: 'Live trade setups from S10, S14, BOJAN strategies', icon: '💡' },
+  { name: 'Kronos Score', url: '/api/kronos-score', price: '$0.10', desc: 'Candlestick pattern scoring via self-hosted model', icon: '🕯️' },
 ];
 
-const MOCK_ENDPOINTS = [
-  { id: 1, url: 'https://api.example.com/v1/data', price: '$0.005', requests: 1284, revenue: '$6.42', status: 'Active' },
-  { id: 2, url: 'https://ml-service.io/predict', price: '$0.012', requests: 456, revenue: '$5.47', status: 'Active' },
-  { id: 3, url: 'https://cdn.assets.net/fetch', price: '$0.001', requests: 8920, revenue: '$8.92', status: 'Paused' },
+// FAssets available on Flare
+const FASSETS = [
+  { symbol: 'FXRP', name: 'Flare XRP', underlying: 'XRP', color: '#23292F', minted: '2,400', icon: '✕' },
+  { symbol: 'FBTC', name: 'Flare Bitcoin', underlying: 'BTC', color: '#F7931A', minted: '0.141', icon: '₿' },
+  { symbol: 'FDOGE', name: 'Flare Doge', underlying: 'DOGE', color: '#C2A633', minted: '8,500', icon: 'Ð' },
 ];
 
-const MOCK_API_KEYS = [
-  { id: 'key_8f3a...2d1c', created: 'Jun 28', lastUsed: '2m ago', status: 'Active' },
-  { id: 'key_b7e1...9f4a', created: 'Jun 15', lastUsed: '5d ago', status: 'Inactive' },
-];
-
-const MOCK_STATS = { requestsToday: 342, revenueToday: '$4.12', avgResponse: '84ms', successRate: '99.2%' };
-
-const PAYMENT_METHODS = [
-  { id: 'x402', label: 'x402 Protocol', desc: 'HTTP 402 pay-per-request' },
-  { id: 'ln', label: 'Lightning', desc: 'Bitcoin LN micropayments' },
-  { id: 'usdc', label: 'USDC Base', desc: 'Stablecoin on Base L2' },
-];
-
-const COMING_SOON = [
-  { icon: '🔘', title: 'Payment Buttons', desc: '"Pay with Crypto" buttons for your website' },
-  { icon: '🔄', title: 'Auto-Pay Rules', desc: 'Scheduled DCA buys, recurring sends, subscriptions' },
-  { icon: '📄', title: 'Invoice Generator', desc: 'Create and track crypto invoices' },
+// Recent x402 settlements on Flare
+const RECENT_SETTLEMENTS = [
+  { endpoint: 'Legal Research', amount: '$0.05', time: '2m ago', txHash: '0x4e5910ec...', status: 'Settled' },
+  { endpoint: 'Market Pulse', amount: '$0.05', time: '15m ago', txHash: '0xa3f2b8c1...', status: 'Settled' },
+  { endpoint: 'AI Analysis', amount: '$0.10', time: '1h ago', txHash: '0x7d2e9f4a...', status: 'Settled' },
+  { endpoint: 'Order Flow', amount: '$0.25', time: '3h ago', txHash: '0x1c8a3b7e...', status: 'Settled' },
 ];
 
 export default function AgenticScreen({ navigation }) {
-  const [walletAddress] = useState(MOCK_WALLET);
-  const [copied, setCopied] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [ftsoPrices, setFtsoPrices] = useState({});
+  const [loadingPrices, setLoadingPrices] = useState(true);
 
-  // x402 Paywall state
-  const [endpointUrl, setEndpointUrl] = useState('');
-  const [pricePerRequest, setPricePerRequest] = useState('0.005');
-  const [selectedMethod, setSelectedMethod] = useState('x402');
-  const [requireAuth, setRequireAuth] = useState(true);
-  const [rateLimit, setRateLimit] = useState(false);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [proxyCopied, setProxyCopied] = useState(false);
-  const [keyCopied, setKeyCopied] = useState(false);
-
-  const copyAddress = () => {
-    Alert.alert('Address Copied', walletAddress);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const createPaywall = () => {
-    if (!endpointUrl.trim()) {
-      Alert.alert('Missing URL', 'Enter an endpoint URL to protect');
-      return;
+  // Fetch live FTSO prices
+  const fetchFtsoPrices = async () => {
+    try {
+      const feedIds = FTSO_FEEDS.map(f => f.id);
+      const resp = await fetch('https://coston2-api.flare.network/ext/C/rpc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_call',
+          params: [{
+            to: FTSOV2_ADDRESS,
+            data: '0x7a6c2f35' + feedIds.map(id => id.slice(2)).join(''),
+          }, 'latest'],
+        }),
+      });
+      const data = await resp.json();
+      if (data.result && data.result !== '0x') {
+        // Parse the return data — getFeedsById returns uint256[], int8[], uint64
+        const hex = data.result.slice(2);
+        const prices = {};
+        for (let i = 0; i < FTSO_FEEDS.length; i++) {
+          const offset = i * 64;
+          const value = BigInt('0x' + hex.slice(offset, offset + 64));
+          prices[FTSO_FEEDS[i].symbol] = Number(value) / 1e8;
+        }
+        setFtsoPrices(prices);
+      }
+      setLoadingPrices(false);
+    } catch (e) {
+      setLoadingPrices(false);
     }
-    Alert.alert('Paywall Created', `x402 proxy generated for ${endpointUrl}`);
-    setShowCreateForm(false);
-    setEndpointUrl('');
   };
 
-  const copyProxyUrl = (url) => {
-    Alert.alert('Proxy URL Copied', url);
-    setProxyCopied(true);
-    setTimeout(() => setProxyCopied(false), 2000);
-  };
+  useEffect(() => { fetchFtsoPrices(); }, []);
 
-  const copyApiKey = (key) => {
-    Alert.alert('API Key Copied', key);
-    setKeyCopied(true);
-    setTimeout(() => setKeyCopied(false), 2000);
-  };
-
-  const generateNewKey = () => {
-    Alert.alert('API Key Generated', 'New key created. Keep it secret.');
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchFtsoPrices();
+    setRefreshing(false);
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
       <ScreenHeader
-        pageName="Agentic"
+        pageName="Agentic x402"
         rightAction={
           <TouchableOpacity onPress={() => navigation.navigate('Profile')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} style={{ padding: 8 }}>
-            <Text style={{ color: '#FFF', fontSize: 20 }}>👤</Text>
+            <Text style={{ color: '#FFF', fontSize: 20 }}>◉</Text>
           </TouchableOpacity>
         }
       />
 
       <ScrollView
         contentContainerStyle={{ paddingBottom: 100 }}
-        style={styles.content} showsVerticalScrollIndicator={false}>
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF9F1C" />}
+      >
 
-        {/* ──────────── x402 Protocol Section ──────────── */}
+        {/* FTSO Live Price Feeds */}
+        <View style={styles.sectionHeader}>
+          <View style={styles.ftsoBadge}>
+            <Text style={styles.ftsoIcon}>⚡</Text>
+          </View>
+          <View style={styles.sectionHeaderText}>
+            <Text style={styles.sectionTitle}>FTSOv2 Price Feeds</Text>
+            <Text style={styles.sectionSub}>Decentralized oracle — updates every ~1.8s</Text>
+          </View>
+        </View>
+
+        {loadingPrices ? (
+          <View style={styles.loadingRow}><ActivityIndicator size="small" color="#FF9F1C" /><Text style={styles.loadingText}>Fetching from Coston2...</Text></View>
+        ) : (
+          <View style={styles.ftsoGrid}>
+            {FTSO_FEEDS.map(feed => {
+              const price = ftsoPrices[feed.symbol];
+              return (
+                <View key={feed.symbol} style={styles.ftsoCard}>
+                  <View style={[styles.ftsoIconSmall, { backgroundColor: feed.color }]} />
+                  <Text style={styles.ftsoSymbol}>{feed.symbol}</Text>
+                  <Text style={styles.ftsoPrice}>
+                    {price ? '$' + price.toLocaleString('en-US', { maximumFractionDigits: 2 }) : '—'}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+        )}
+
+        {/* x402 Paid API Endpoints */}
         <View style={styles.sectionHeader}>
           <View style={styles.x402Badge}>
             <Text style={styles.x402Icon}>⚡</Text>
           </View>
           <View style={styles.sectionHeaderText}>
-            <Text style={styles.sectionTitle}>x402 Protocol</Text>
-            <Text style={styles.sectionSub}>HTTP 402 Pay-on-request</Text>
+            <Text style={styles.sectionTitle}>x402 Endpoints</Text>
+            <Text style={styles.sectionSub}>Pay-per-request APIs — USDC on Flare</Text>
           </View>
         </View>
 
-        {/* Wallet Card */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>x402 Wallet</Text>
-          <Text style={styles.cardDesc}>Connect your wallet for agent-to-agent payments via the x402 protocol.</Text>
-          <View style={styles.walletRow}>
-            <View style={styles.walletAddress}>
-              <Text style={styles.walletLabel}>Connected Address</Text>
-              <Text style={styles.walletValue} numberOfLines={1}>0x742d...3a5f</Text>
-            </View>
-            <TouchableOpacity style={styles.copyBtn} onPress={copyAddress}>
-              <Text style={styles.copyBtnText}>{copied ? '✓' : '📋'}</Text>
-            </TouchableOpacity>
-          </View>
-          <SpringPress onPress={() => Alert.alert('Update Wallet', 'Wallet address update flow coming soon!')}>
-            <View style={styles.actionBtn}><Text style={styles.actionBtnText}>Update Wallet Address</Text></View>
-          </SpringPress>
-        </View>
-
-        {/* ──────────── x402 Paywall Configurator ──────────── */}
-        <View style={styles.sectionHeader}>
-          <View style={styles.paywallBadge}>
-            <Text style={styles.paywallIcon}>🔒</Text>
-          </View>
-          <View style={styles.sectionHeaderText}>
-            <Text style={styles.sectionTitle}>Paywall Configurator</Text>
-            <Text style={styles.sectionSub}>Protect any endpoint, set the price</Text>
-          </View>
-        </View>
-
-        {/* Live Stats */}
-        <View style={styles.statsRow}>
-          <View style={styles.statBox}>
-            <Text style={styles.statValue}>{MOCK_STATS.requestsToday}</Text>
-            <Text style={styles.statLabel}>Requests Today</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statValue}>{MOCK_STATS.revenueToday}</Text>
-            <Text style={styles.statLabel}>Revenue Today</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statValue}>{MOCK_STATS.avgResponse}</Text>
-            <Text style={styles.statLabel}>Avg Response</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statValue}>{MOCK_STATS.successRate}</Text>
-            <Text style={styles.statLabel}>Success Rate</Text>
-          </View>
-        </View>
-
-        {/* Create New Paywall */}
-        {!showCreateForm ? (
-          <SpringPress onPress={() => setShowCreateForm(true)}>
-            <View style={styles.actionBtn}>
-              <Text style={styles.actionBtnText}>+ Create New Paywall</Text>
-            </View>
-          </SpringPress>
-        ) : (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>New Paywall</Text>
-
-            {/* Endpoint URL Input */}
-            <Text style={styles.fieldLabel}>Endpoint URL</Text>
-            <View style={styles.inputWrap}>
-              <TextInput
-                style={styles.textInput}
-                value={endpointUrl}
-                onChangeText={setEndpointUrl}
-                placeholder="https://api.yourservice.com/v1/..."
-                placeholderTextColor="#8E8E93"
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="url"
-              />
-            </View>
-
-            {/* Price Per Request */}
-            <Text style={styles.fieldLabel}>Price Per Request</Text>
-            <View style={styles.priceRow}>
-              <View style={styles.priceInputWrap}>
-                <Text style={styles.priceDollar}>$</Text>
-                <TextInput
-                  style={styles.priceInput}
-                  value={pricePerRequest}
-                  onChangeText={setPricePerRequest}
-                  placeholder="0.005"
-                  placeholderTextColor="#8E8E93"
-                  keyboardType="decimal-pad"
-                />
+        {X402_ENDPOINTS.map((ep, i) => (
+          <View key={i} style={styles.endpointCard}>
+            <View style={styles.endpointHeader}>
+              <Text style={styles.endpointIcon}>{ep.icon}</Text>
+              <View style={styles.endpointInfo}>
+                <Text style={styles.endpointName}>{ep.name}</Text>
+                <Text style={styles.endpointDesc}>{ep.desc}</Text>
               </View>
-            </View>
-
-            {/* Payment Method */}
-            <Text style={styles.fieldLabel}>Payment Method</Text>
-            <View style={styles.methodRow}>
-              {PAYMENT_METHODS.map(m => (
-                <TouchableOpacity
-                  key={m.id}
-                  style={[styles.methodCard, selectedMethod === m.id && styles.methodCardActive]}
-                  onPress={() => setSelectedMethod(m.id)}
-                >
-                  <Text style={[styles.methodLabel, selectedMethod === m.id && styles.methodLabelActive]}>{m.label}</Text>
-                  <Text style={styles.methodDesc}>{m.desc}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* Options */}
-            <View style={styles.toggleRow}>
-              <Text style={styles.toggleLabel}>Require API Key</Text>
-              <Switch value={requireAuth} onValueChange={setRequireAuth} trackColor={{ false: '#E5E5EA', true: '#5856D6' }} thumbColor="#FFF" />
-            </View>
-            <View style={styles.toggleRow}>
-              <Text style={styles.toggleLabel}>Rate Limiting</Text>
-              <Switch value={rateLimit} onValueChange={setRateLimit} trackColor={{ false: '#E5E5EA', true: '#5856D6' }} thumbColor="#FFF" />
-            </View>
-
-            {/* Create Button */}
-            <SpringPress onPress={createPaywall}>
-              <View style={styles.createBtn}>
-                <Text style={styles.createBtnText}>Create Paywall</Text>
+              <View style={styles.priceBadge}>
+                <Text style={styles.priceText}>{ep.price}</Text>
               </View>
-            </SpringPress>
-            <TouchableOpacity onPress={() => setShowCreateForm(false)} style={styles.cancelLink}>
-              <Text style={styles.cancelText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Active Endpoints */}
-        <Text style={styles.sectionTitle2}>Active Endpoints</Text>
-        {MOCK_ENDPOINTS.map(ep => (
-          <View key={ep.id} style={styles.endpointCard}>
-            <View style={styles.endpointRow}>
-              <View style={[styles.statusDot, { backgroundColor: ep.status === 'Active' ? '#34C759' : '#8E8E93' }]} />
-              <Text style={styles.endpointUrl} numberOfLines={1}>{ep.url}</Text>
-            </View>
-            <View style={styles.endpointStats}>
-              <View style={styles.endpointStat}>
-                <Text style={styles.endpointStatLabel}>Price</Text>
-                <Text style={styles.endpointStatValue}>{ep.price}</Text>
-              </View>
-              <View style={styles.endpointStat}>
-                <Text style={styles.endpointStatLabel}>Requests</Text>
-                <Text style={styles.endpointStatValue}>{ep.requests.toLocaleString()}</Text>
-              </View>
-              <View style={styles.endpointStat}>
-                <Text style={styles.endpointStatLabel}>Revenue</Text>
-                <Text style={styles.endpointStatValue}>{ep.revenue}</Text>
-              </View>
-            </View>
-            <View style={styles.endpointActions}>
-              <View style={styles.proxyUrlRow}>
-                <Text style={styles.proxyUrlLabel}>Proxy:</Text>
-                <Text style={styles.proxyUrlValue} numberOfLines={1}>https://x402.cp.io/proxy/{ep.id}</Text>
-              </View>
-              <TouchableOpacity style={styles.miniCopyBtn} onPress={() => copyProxyUrl(`https://x402.cp.io/proxy/${ep.id}`)}>
-                <Text style={styles.miniCopyBtnText}>{proxyCopied ? '✓' : '📋'}</Text>
-              </TouchableOpacity>
             </View>
           </View>
         ))}
 
-        {/* API Keys */}
-        <Text style={styles.sectionTitle2}>API Keys</Text>
-        {MOCK_API_KEYS.map(key => (
-          <View key={key.id} style={styles.keyCard}>
-            <View style={styles.keyRow}>
-              <View style={[styles.statusDot, { backgroundColor: key.status === 'Active' ? '#34C759' : '#8E8E93' }]} />
-              <Text style={styles.keyId}>{key.id}</Text>
-              <TouchableOpacity style={styles.miniCopyBtn} onPress={() => copyApiKey(key.id)}>
-                <Text style={styles.miniCopyBtnText}>{keyCopied ? '✓' : '📋'}</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.keyMeta}>
-              <Text style={styles.keyMetaText}>Created {key.created} · Last used {key.lastUsed}</Text>
-              <View style={[styles.keyStatusBadge, { backgroundColor: key.status === 'Active' ? '#E8F8EE' : '#F2F2F7' }]}>
-                <Text style={[styles.keyStatusText, { color: key.status === 'Active' ? '#34C759' : '#8E8E93' }]}>{key.status}</Text>
-              </View>
-            </View>
-          </View>
-        ))}
-        <SpringPress onPress={generateNewKey}>
-          <View style={styles.outlineBtn}>
-            <Text style={styles.outlineBtnText}>+ Generate New Key</Text>
-          </View>
-        </SpringPress>
-
-        {/* ──────────── Coming Soon ──────────── */}
-        <Text style={styles.sectionTitle2}>Coming Soon</Text>
-        {COMING_SOON.map((item, i) => (
-          <View key={i} style={styles.soonCard}>
-            <View style={styles.soonLeft}>
-              <Text style={styles.soonIcon}>{item.icon}</Text>
-              <View style={styles.soonInfo}>
-                <Text style={styles.soonTitle}>{item.title}</Text>
-                <Text style={styles.soonDesc}>{item.desc}</Text>
-              </View>
-            </View>
-            <View style={styles.soonBadge}>
-              <Text style={styles.soonBadgeText}>Soon</Text>
-            </View>
-          </View>
-        ))}
-
-        {/* ──────────── Recent Agent Payments ──────────── */}
-        <Text style={styles.sectionTitle2}>Recent Agent Payments</Text>
-        {MOCK_TX.map(tx => (
-          <View key={tx.id} style={styles.txRow}>
-            <View style={styles.txMid}>
-              <Text style={styles.txAction}>{tx.action}</Text>
+        {/* Recent Settlements */}
+        <Text style={styles.sectionTitle2}>Recent x402 Settlements</Text>
+        {RECENT_SETTLEMENTS.map((tx, i) => (
+          <View key={i} style={styles.txRow}>
+            <View style={styles.txLeft}>
+              <Text style={styles.txEndpoint}>{tx.endpoint}</Text>
+              <Text style={styles.txHash}>{tx.txHash}</Text>
               <Text style={styles.txTime}>{tx.time}</Text>
             </View>
             <View style={styles.txRight}>
-              <Text style={styles.txCost}>{tx.cost}</Text>
-              <Text style={styles.txStatus}>{tx.status}</Text>
+              <Text style={styles.txAmount}>{tx.amount}</Text>
+              <View style={styles.txStatusBadge}>
+                <Text style={styles.txStatusText}>✅ {tx.status}</Text>
+              </View>
             </View>
           </View>
         ))}
 
-        {/* Connected Agents */}
-        <Text style={styles.sectionTitle2}>Connected Agents</Text>
-        {MOCK_AGENTS.map((agent, i) => (
-          <View key={i} style={styles.agentCard}>
-            <View style={styles.agentLeft}>
-              <Text style={styles.agentIcon}>{agent.icon}</Text>
-              <View style={styles.agentInfo}>
-                <Text style={styles.agentName}>{agent.name}</Text>
-                <View style={styles.agentStatusRow}>
-                  <View style={[styles.agentDot, { backgroundColor: agent.statusColor }]} />
-                  <Text style={[styles.agentStatus, { color: agent.statusColor }]}>{agent.status}</Text>
-                </View>
+        {/* FAssets */}
+        <View style={styles.sectionHeader}>
+          <View style={styles.fAssetBadge}>
+            <Text style={styles.fAssetIcon}>🔗</Text>
+          </View>
+          <View style={styles.sectionHeaderText}>
+            <Text style={styles.sectionTitle}>FAssets — Interoperable</Text>
+            <Text style={styles.sectionSub}>Trustless bridge for non-smart-contract assets</Text>
+          </View>
+        </View>
+
+        {FASSETS.map((fa, i) => (
+          <View key={i} style={styles.fAssetCard}>
+            <View style={styles.fAssetLeft}>
+              <View style={[styles.fAssetIconCircle, { backgroundColor: fa.color }]}>
+                <Text style={styles.fAssetIconText}>{fa.icon}</Text>
+              </View>
+              <View>
+                <Text style={styles.fAssetName}>{fa.name}</Text>
+                <Text style={styles.fAssetUnderlying}>Backed by {fa.underlying}</Text>
               </View>
             </View>
-            <View style={styles.agentRight}>
-              <Text style={styles.agentSpent}>{agent.spent}</Text>
-              <Text style={styles.agentSpentLabel}>today</Text>
+            <View style={styles.fAssetRight}>
+              <Text style={styles.fAssetMinted}>{fa.minted}</Text>
+              <Text style={styles.fAssetMintedLabel}>{fa.symbol}</Text>
             </View>
           </View>
         ))}
+
+        {/* Network Info */}
+        <Text style={styles.sectionTitle2}>Network</Text>
+        <View style={styles.networkCard}>
+          <View style={styles.networkRow}>
+            <Text style={styles.networkLabel}>Chain</Text>
+            <Text style={styles.networkValue}>Flare Coston2 (Testnet)</Text>
+          </View>
+          <View style={styles.networkRow}>
+            <Text style={styles.networkLabel}>Chain ID</Text>
+            <Text style={styles.networkValue}>{FLARE_CHAIN_ID}</Text>
+          </View>
+          <View style={styles.networkRow}>
+            <Text style={styles.networkLabel}>FTSO Contract</Text>
+            <Text style={styles.networkValueMono}>{FTSOV2_ADDRESS.slice(0, 10)}...{FTSOV2_ADDRESS.slice(-8)}</Text>
+          </View>
+          <View style={styles.networkRow}>
+            <Text style={styles.networkLabel}>Explorer</Text>
+            <Text style={styles.networkValueLink}>coston2-explorer.flare.network</Text>
+          </View>
+        </View>
 
         <View style={{ height: 40 }} />
       </ScrollView>
@@ -373,120 +244,66 @@ const styles = StyleSheet.create({
   content: { flex: 1, paddingHorizontal: 20, paddingTop: 8 },
 
   // Section headers
-  sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, marginTop: 8 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, marginTop: 20 },
+  ftsoBadge: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#FF9F1C', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  ftsoIcon: { fontSize: 20 },
   x402Badge: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#5856D6', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
   x402Icon: { fontSize: 20 },
-  paywallBadge: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#1C3040', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
-  paywallIcon: { fontSize: 18 },
+  fAssetBadge: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#1C3040', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  fAssetIcon: { fontSize: 18 },
   sectionHeaderText: { flex: 1 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: Colors.text },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#1C1C1E' },
   sectionSub: { fontSize: 12, color: '#8E8E93', marginTop: 2 },
-  sectionTitle2: { fontSize: 16, fontWeight: '700', color: Colors.text, marginTop: 20, marginBottom: 8 },
+  sectionTitle2: { fontSize: 16, fontWeight: '700', color: '#1C1C1E', marginTop: 24, marginBottom: 8 },
 
-  // Generic card
-  card: { backgroundColor: Colors.surface, borderRadius: 16, padding: 20, marginBottom: 8, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 1 },
-  cardTitle: { fontSize: 16, fontWeight: '600', color: Colors.text, marginBottom: 6 },
-  cardDesc: { fontSize: 13, color: Colors.textLight, lineHeight: 18, marginBottom: 16 },
+  // Loading
+  loadingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 20, gap: 8 },
+  loadingText: { fontSize: 13, color: '#8E8E93' },
 
-  // Wallet
-  walletRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16, backgroundColor: '#F2F2F7', borderRadius: 10, padding: 12 },
-  walletAddress: { flex: 1 },
-  walletLabel: { fontSize: 11, color: Colors.textLight, marginBottom: 2 },
-  walletValue: { fontSize: 15, fontWeight: '600', color: Colors.text },
-  copyBtn: { width: 36, height: 36, borderRadius: 8, backgroundColor: '#5856D6', alignItems: 'center', justifyContent: 'center' },
-  copyBtnText: { fontSize: 16, color: '#FFF' },
-
-  // Buttons
-  actionBtn: { backgroundColor: '#5856D6', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginBottom: 8 },
-  actionBtnText: { color: '#FFF', fontSize: 15, fontWeight: '600' },
-  createBtn: { backgroundColor: '#34C759', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 8 },
-  createBtnText: { color: '#FFF', fontSize: 15, fontWeight: '600' },
-  outlineBtn: { borderWidth: 1, borderColor: '#5856D6', borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginBottom: 8 },
-  outlineBtnText: { color: '#5856D6', fontSize: 14, fontWeight: '600' },
-  cancelLink: { alignItems: 'center', paddingVertical: 8 },
-  cancelText: { color: '#8E8E93', fontSize: 14 },
-
-  // Stats row
-  statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
-  statBox: { backgroundColor: Colors.surface, borderRadius: 12, padding: 12, flex: 1, marginHorizontal: 3, alignItems: 'center' },
-  statValue: { fontSize: 18, fontWeight: '700', color: Colors.text },
-  statLabel: { fontSize: 10, color: Colors.textLight, marginTop: 2, textAlign: 'center' },
-
-  // Form fields
-  fieldLabel: { fontSize: 13, fontWeight: '600', color: Colors.text, marginBottom: 6 },
-  inputWrap: { backgroundColor: '#F2F2F7', borderRadius: 10, padding: 12, marginBottom: 12 },
-  textInput: { fontSize: 14, color: Colors.text },
-  priceRow: { flexDirection: 'row', marginBottom: 12 },
-  priceInputWrap: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F2F2F7', borderRadius: 10, padding: 12, flex: 1 },
-  priceDollar: { fontSize: 16, fontWeight: '600', color: Colors.text, marginRight: 6 },
-  priceInput: { fontSize: 16, fontWeight: '500', color: Colors.text, flex: 1 },
-
-  // Payment method
-  methodRow: { flexDirection: 'row', marginBottom: 12 },
-  methodCard: { flex: 1, backgroundColor: '#F2F2F7', borderRadius: 10, padding: 10, marginHorizontal: 3, alignItems: 'center' },
-  methodCardActive: { backgroundColor: '#5856D6' },
-  methodLabel: { fontSize: 12, fontWeight: '600', color: Colors.text },
-  methodLabelActive: { color: '#FFF' },
-  methodDesc: { fontSize: 9, color: Colors.textLight, marginTop: 2, textAlign: 'center' },
-
-  // Toggles
-  toggleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 6 },
-  toggleLabel: { fontSize: 14, color: Colors.text },
+  // FTSO grid
+  ftsoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  ftsoCard: { backgroundColor: '#FFF', borderRadius: 12, padding: 12, width: '48%', flexDirection: 'row', alignItems: 'center', gap: 8, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+  ftsoIconSmall: { width: 8, height: 8, borderRadius: 4 },
+  ftsoSymbol: { fontSize: 12, fontWeight: '600', color: '#8E8E93', flex: 1 },
+  ftsoPrice: { fontSize: 14, fontWeight: '700', color: '#1C1C1E' },
 
   // Endpoints
-  endpointCard: { backgroundColor: Colors.surface, borderRadius: 12, padding: 14, marginBottom: 8, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 1 },
-  endpointRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  statusDot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
-  endpointUrl: { fontSize: 12, fontWeight: '500', color: Colors.text, flex: 1 },
-  endpointStats: { flexDirection: 'row', marginBottom: 8 },
-  endpointStat: { flex: 1 },
-  endpointStatLabel: { fontSize: 10, color: Colors.textLight },
-  endpointStatValue: { fontSize: 14, fontWeight: '600', color: Colors.text },
-  endpointActions: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1C1C2E', borderRadius: 8, padding: 10 },
-  proxyUrlRow: { flex: 1, flexDirection: 'row', alignItems: 'center' },
-  proxyUrlLabel: { fontSize: 10, color: '#8E8E93', marginRight: 4 },
-  proxyUrlValue: { fontSize: 11, color: '#B8E986', fontFamily: 'monospace', flex: 1 },
-  miniCopyBtn: { width: 32, height: 32, borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
-  miniCopyBtnText: { fontSize: 14, color: '#FFF' },
+  endpointCard: { backgroundColor: '#FFF', borderRadius: 14, padding: 14, marginBottom: 8, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+  endpointHeader: { flexDirection: 'row', alignItems: 'center' },
+  endpointIcon: { fontSize: 24, marginRight: 12 },
+  endpointInfo: { flex: 1 },
+  endpointName: { fontSize: 15, fontWeight: '700', color: '#1C1C1E' },
+  endpointDesc: { fontSize: 12, color: '#8E8E93', marginTop: 2 },
+  priceBadge: { backgroundColor: 'rgba(255,159,28,0.12)', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
+  priceText: { fontSize: 13, fontWeight: '700', color: '#FF9F1C' },
 
-  // API Keys
-  keyCard: { backgroundColor: Colors.surface, borderRadius: 12, padding: 14, marginBottom: 8 },
-  keyRow: { flexDirection: 'row', alignItems: 'center' },
-  keyId: { fontSize: 13, fontWeight: '500', color: Colors.text, flex: 1, fontFamily: 'monospace' },
-  keyMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 },
-  keyMetaText: { fontSize: 11, color: Colors.textLight, flex: 1 },
-  keyStatusBadge: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 },
-  keyStatusText: { fontSize: 11, fontWeight: '600' },
-
-  // Coming Soon
-  soonCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: Colors.surface, borderRadius: 12, padding: 14, marginBottom: 8 },
-  soonLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  soonIcon: { fontSize: 24, marginRight: 12 },
-  soonInfo: { flex: 1 },
-  soonTitle: { fontSize: 15, fontWeight: '600', color: Colors.text },
-  soonDesc: { fontSize: 12, color: Colors.textLight, marginTop: 2 },
-  soonBadge: { backgroundColor: '#E5E5EA', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
-  soonBadgeText: { fontSize: 11, fontWeight: '600', color: '#8E8E93' },
-
-  // Transactions
-  txRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: Colors.borderLight },
-  txMid: { flex: 1 },
-  txAction: { fontSize: 14, fontWeight: '500', color: Colors.text },
-  txTime: { fontSize: 11, color: Colors.textLight, marginTop: 2 },
+  // Settlements
+  txRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFF', borderRadius: 12, padding: 12, marginBottom: 6, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 4, elevation: 1 },
+  txLeft: { flex: 1 },
+  txEndpoint: { fontSize: 14, fontWeight: '600', color: '#1C1C1E' },
+  txHash: { fontSize: 11, color: '#FF9F1C', fontFamily: 'monospace', marginTop: 2 },
+  txTime: { fontSize: 11, color: '#8E8E93', marginTop: 1 },
   txRight: { alignItems: 'flex-end' },
-  txCost: { fontSize: 14, fontWeight: '600', color: Colors.text },
-  txStatus: { fontSize: 12, marginTop: 2 },
+  txAmount: { fontSize: 15, fontWeight: '700', color: '#1C1C1E' },
+  txStatusBadge: { backgroundColor: '#E8F8EE', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, marginTop: 4 },
+  txStatusText: { fontSize: 10, fontWeight: '600', color: '#34C759' },
 
-  // Agents
-  agentCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: Colors.surface, borderRadius: 12, padding: 14, marginBottom: 8 },
-  agentLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  agentIcon: { fontSize: 28, marginRight: 12 },
-  agentInfo: { flex: 1 },
-  agentName: { fontSize: 15, fontWeight: '600', color: Colors.text },
-  agentStatusRow: { flexDirection: 'row', alignItems: 'center', marginTop: 3 },
-  agentDot: { width: 8, height: 8, borderRadius: 4, marginRight: 6 },
-  agentStatus: { fontSize: 12, fontWeight: '500' },
-  agentRight: { alignItems: 'flex-end' },
-  agentSpent: { fontSize: 16, fontWeight: '700', color: Colors.text },
-  agentSpentLabel: { fontSize: 11, color: Colors.textLight, marginTop: 1 },
+  // FAssets
+  fAssetCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFF', borderRadius: 12, padding: 14, marginBottom: 8, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+  fAssetLeft: { flexDirection: 'row', alignItems: 'center' },
+  fAssetIconCircle: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  fAssetIconText: { color: '#FFF', fontSize: 18, fontWeight: '700' },
+  fAssetName: { fontSize: 15, fontWeight: '600', color: '#1C1C1E' },
+  fAssetUnderlying: { fontSize: 12, color: '#8E8E93', marginTop: 1 },
+  fAssetRight: { alignItems: 'flex-end' },
+  fAssetMinted: { fontSize: 16, fontWeight: '700', color: '#1C1C1E' },
+  fAssetMintedLabel: { fontSize: 11, color: '#8E8E93', marginTop: 1 },
+
+  // Network
+  networkCard: { backgroundColor: '#FFF', borderRadius: 14, padding: 16, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+  networkRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 },
+  networkLabel: { fontSize: 13, color: '#8E8E93', fontWeight: '500' },
+  networkValue: { fontSize: 13, color: '#1C1C1E', fontWeight: '600' },
+  networkValueMono: { fontSize: 12, color: '#FF9F1C', fontFamily: 'monospace' },
+  networkValueLink: { fontSize: 12, color: '#5856D6', fontWeight: '500' },
 });
