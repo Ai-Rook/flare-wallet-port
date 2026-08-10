@@ -1,5 +1,5 @@
 import ScreenHeader from '../../components/ScreenHeader';
-import FlareTokenIcon from '../../components/FlareTokenIcon';
+import FlareTokenIcon, { FASSET_UNDERLYING } from '../../components/FlareTokenIcon';
 import React, { useState, useRef } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet,
@@ -34,8 +34,10 @@ export default function ExchangeScreen({ navigation, route }) {
   const rotateInterp = swapAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
 
   // Live conversion math from FTSO prices
-  const fromPrice = prices[fromCrypto]?.price || 0;
-  const toPrice = prices[toCrypto]?.price || 0;
+  const fromKey = FASSET_UNDERLYING[fromCrypto] || fromCrypto;
+  const fromPrice = prices[fromKey]?.price || 0;
+  const toKey = FASSET_UNDERLYING[toCrypto] || toCrypto;
+  const toPrice = prices[toKey]?.price || 0;
   const rate = fromPrice > 0 && toPrice > 0 ? fromPrice / toPrice : 0;
   const toAmount = fromAmount && rate > 0 ? (parseFloat(fromAmount) * rate).toFixed(6) : '0.00';
   const usdValue = fromAmount ? (parseFloat(fromAmount) * fromPrice) : 0;
