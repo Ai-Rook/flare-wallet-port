@@ -1,7 +1,7 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import {
   View, Text, Image, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar, RefreshControl, Animated,
+  SafeAreaView, StatusBar, RefreshControl, Animated, TextInput,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../../constants/colors';
@@ -16,19 +16,16 @@ import GlowPulse from '../../components/GlowPulse';
 import ToastSlide from '../../components/ToastSlide';
 import ScreenHeader from '../../components/ScreenHeader';
 import { useLivePrices } from '../../services/LivePriceService';
-import { flareWallet } from '../../services/FlareWalletService';
 
 // Time period filters
 const TIME_FILTERS = ['All', '1y', '1m', '1w', '1d'];
 const HOME_TABS = ['Assets', 'FX', 'FAssets'];
 
-// FAssets wallet data — Flare interoperable assets
-const FASSET_WALLETS = [
-  { symbol: 'FLR', name: 'Flare', color: '#FFD700', amount: '1,250.00', sparkline: [40, 42, 38, 45, 50, 48, 55, 52, 58, 60] },
-  { symbol: 'FXRP', name: 'Flare XRP', color: '#23292F', amount: '2,400.00', sparkline: [55, 50, 52, 48, 45, 47, 44, 42, 40, 38] },
-  { symbol: 'FBTC', name: 'Flare Bitcoin', color: '#F7931A', amount: '0.1410', sparkline: [35, 40, 38, 45, 48, 52, 50, 55, 58, 62] },
-  { symbol: 'FDOGE', name: 'Flare Doge', color: '#C2A633', amount: '8,500.00', sparkline: [30, 32, 35, 33, 36, 38, 37, 40, 39, 41] },
-];
+// Pre-import token icons (no dynamic require)
+const BTC_ICON = require('../../assets/tokens/btc.png');
+const ETH_ICON = require('../../assets/tokens/eth.png');
+const XRP_ICON = require('../../assets/tokens/xrp.png');
+const USDC_ICON = require('../../assets/tokens/usdc.png');
 
 // FX currencies with live rates
 const FX_CURRENCIES = [
@@ -40,18 +37,32 @@ const FX_CURRENCIES = [
   { code: 'JPY', name: 'Japanese Yen', flag: '🇯🇵', rate: 157.3 },
 ];
 
-// Helper to compute portfolio total from live prices
+// Asset wallets — Flare versions using FTSO prices
+const ASSET_WALLETS = [
+  { symbol: 'FBTC', name: 'Flare Bitcoin', color: '#F7931A', amount: '0.1410', sparkline: [35, 40, 38, 45, 48, 52, 50, 55, 58, 62], underlying: 'BTC', icon: BTC_ICON },
+  { symbol: 'FETH', name: 'Flare Ethereum', color: '#627EEA', amount: '1.205', sparkline: [30, 32, 35, 33, 36, 38, 37, 40, 39, 41], underlying: 'ETH', icon: ETH_ICON },
+  { symbol: 'FXRP', name: 'Flare XRP', color: '#23292F', amount: '1,840.00', sparkline: [55, 50, 52, 48, 45, 47, 44, 42, 40, 38], underlying: 'XRP', icon: XRP_ICON },
+  { symbol: 'FLR', name: 'Flare', color: '#FFD700', amount: '1,250.00', sparkline: [40, 42, 38, 45, 50, 48, 55, 52, 58, 60], underlying: null, icon: null },
+  { symbol: 'USDC', name: 'USD Coin', color: '#2775CA', amount: '5,000.00', sparkline: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50], underlying: null, icon: USDC_ICON },
+];
+
+// FAssets wallets
+const FASSET_WALLETS = [
+  { symbol: 'FLR', name: 'Flare', color: '#FFD700', amount: '1,250.00' },
+  { symbol: 'FXRP', name: 'Flare XRP', color: '#23292F', amount: '2,400.00' },
+  { symbol: 'FBTC', name: 'Flare Bitcoin', color: '#F7931A', amount: '0.1410' },
+  { symbol: 'FDOGE', name: 'Flare Doge', color: '#C2A633', amount: '8,500.00' },
+];
+
 function computePortfolio(prices, wallets) {
-  let total = 0;
+  let total = 5000; // demo USDC cash
   wallets.forEach(w => {
-    const live = prices[w.symbol] || prices[w.underlying];
+    const live = prices[w.underlying || w.symbol];
     if (live) {
       const amount = parseFloat(w.amount.replace(/,/g, ''));
       total += amount * live.price;
     }
   });
-  // Add USDC/USDT cash at $1
-  total += 5000; // demo cash balance
   const btcChange = prices.BTC?.change24h || 0;
   return {
     totalBalance: total,
@@ -69,16 +80,6 @@ export default function HomeScreen({ navigation }) {
   const [fxFrom, setFxFrom] = useState('USD');
   const [fxTo, setFxTo] = useState('EUR');
   const scrollY = useRef(new Animated.Value(0)).current;
-  const headerOpacity = scrollY.interpolate({ inputRange: [0, 100], outputRange: [0, 1], extrapolate: 'clamp' });
-
-  // Asset wallets — Flare versions using FTSO prices
-  const ASSET_WALLETS = [
-    { symbol: 'FBTC', name: 'Flare Bitcoin', color: '#F7931A', amount: '0.1410', sparkline: [35, 40, 38, 45, 48, 52, 50, 55, 58, 62], underlying: 'BTC', icon: 'btc' },
-    { symbol: 'FETH', name: 'Flare Ethereum', color: '#627EEA', amount: '1.205', sparkline: [30, 32, 35, 33, 36, 38, 37, 40, 39, 41], underlying: 'ETH', icon: 'eth' },
-    { symbol: 'FXRP', name: 'Flare XRP', color: '#23292F', amount: '1,840.00', sparkline: [55, 50, 52, 48, 45, 47, 44, 42, 40, 38], underlying: 'XRP', icon: 'xrp' },
-    { symbol: 'FLR', name: 'Flare', color: '#FFD700', amount: '1,250.00', sparkline: [40, 42, 38, 45, 50, 48, 55, 52, 58, 60], underlying: null, icon: null },
-    { symbol: 'USDC', name: 'USD Coin', color: '#2775CA', amount: '5,000.00', sparkline: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50], underlying: null, icon: 'usdc' },
-  ];
 
   const staggerAnims = useRef(ASSET_WALLETS.map(() => new Animated.Value(0))).current;
   useEffect(() => {
@@ -96,7 +97,7 @@ export default function HomeScreen({ navigation }) {
     setTimeout(() => setRefreshing(false), 1000);
   };
 
-  // FX conversion calculation
+  // FX conversion
   const fxFromRate = FX_CURRENCIES.find(c => c.code === fxFrom)?.rate || 1;
   const fxToRate = FX_CURRENCIES.find(c => c.code === fxTo)?.rate || 1;
   const fxResult = (parseFloat(fxAmount || '0') / fxFromRate * fxToRate).toFixed(2);
@@ -114,7 +115,6 @@ export default function HomeScreen({ navigation }) {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fff" />}
         stickyHeaderIndices={[0]}
       >
-        {/* Header */}
         <ScreenHeader pageName="Flare Wallet" noBorder rightAction={
           <TouchableOpacity onPress={() => navigation.navigate('Profile')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} style={{ padding: 8 }}>
             <Text style={{ color: '#FFF', fontSize: 20 }}>◉</Text>
@@ -163,11 +163,10 @@ export default function HomeScreen({ navigation }) {
           ))}
         </View>
 
-        {/* Assets tab — Flare wallet list */}
+        {/* Assets tab */}
         {homeTab === 'Assets' && (
           <View style={styles.walletList}>
             {ASSET_WALLETS.map((wallet, idx) => {
-              const token = TOKENS.find(t => t.symbol === wallet.symbol);
               const livePrice = prices[wallet.underlying || wallet.symbol];
               const displayPrice = livePrice ? livePrice.price : 0;
               const displayChange = livePrice ? livePrice.change24h : 0;
@@ -182,10 +181,10 @@ export default function HomeScreen({ navigation }) {
                       <View style={styles.walletCard}>
                         <View style={styles.walletLeft}>
                           {wallet.icon ? (
-                            <Image source={require(`../../assets/tokens/${wallet.icon}.png`)} style={styles.walletIcon} />
+                            <Image source={wallet.icon} style={styles.walletIcon} />
                           ) : (
                             <View style={[styles.walletIconPlaceholder, { backgroundColor: wallet.color }]}>
-                              <Text style={styles.walletIconText}>{wallet.symbol === 'FLR' ? '◉' : '✕'}</Text>
+                              <Text style={styles.walletIconText}>◉</Text>
                             </View>
                           )}
                           <View style={styles.walletInfo}>
@@ -274,7 +273,6 @@ export default function HomeScreen({ navigation }) {
               </Text>
             </View>
 
-            {/* Currency picker grid */}
             <Text style={styles.fxSectionTitle}>Currencies</Text>
             <View style={styles.fxCurrencyGrid}>
               {FX_CURRENCIES.map(c => (
@@ -291,7 +289,7 @@ export default function HomeScreen({ navigation }) {
           </View>
         )}
 
-        {/* FAssets tab — interoperable assets info */}
+        {/* FAssets tab */}
         {homeTab === 'FAssets' && (
           <View style={styles.walletList}>
             <View style={styles.fAssetInfoCard}>
@@ -300,7 +298,7 @@ export default function HomeScreen({ navigation }) {
                 FAssets are trustless, over-collateralized wrapped tokens on Flare. Mint FXRP from XRP, FBTC from Bitcoin, FDOGE from Dogecoin — all backed by Flare's decentralized infrastructure.
               </Text>
             </View>
-            {FASSET_WALLETS.map((wallet, idx) => (
+            {FASSET_WALLETS.map((wallet) => (
               <View key={wallet.symbol} style={styles.walletCard}>
                 <View style={styles.walletLeft}>
                   <View style={[styles.walletIconPlaceholder, { backgroundColor: wallet.color }]}>
@@ -325,8 +323,6 @@ export default function HomeScreen({ navigation }) {
     </SafeAreaView>
   );
 }
-
-import { TextInput } from 'react-native';
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#FF9F1C' },
@@ -368,7 +364,6 @@ const styles = StyleSheet.create({
   walletPrice: { fontSize: 16, fontWeight: '700', color: '#1C1C1E' },
   walletChangeRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   walletChange: { fontSize: 12, fontWeight: '600' },
-  // FX tab
   fxContainer: { backgroundColor: '#F2F2F7', paddingHorizontal: 16, paddingTop: 16 },
   fxCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, marginBottom: 16 },
   fxTitle: { fontSize: 18, fontWeight: '700', color: '#1C1C1E', marginBottom: 4 },
@@ -391,7 +386,6 @@ const styles = StyleSheet.create({
   fxCurrencyChipActive: { backgroundColor: '#FF9F1C' },
   fxCurrencyChipFlag: { fontSize: 16 },
   fxCurrencyChipCode: { fontSize: 13, fontWeight: '600', color: '#1C1C1E' },
-  // FAssets tab
   fAssetInfoCard: { backgroundColor: '#FFFFFF', borderRadius: 14, padding: 16, marginBottom: 16, borderLeftWidth: 3, borderLeftColor: '#FF9F1C' },
   fAssetInfoTitle: { fontSize: 15, fontWeight: '700', color: '#1C1C1E', marginBottom: 6 },
   fAssetInfoText: { fontSize: 13, color: '#8E8E93', lineHeight: 18 },
