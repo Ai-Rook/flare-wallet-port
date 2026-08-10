@@ -85,6 +85,7 @@ const TAB_ICONS = {
   cards: { active: require('./assets/tab-icons/card-active.png'), inactive: require('./assets/tab-icons/card-inactive.png') },
   markets: { active: require('./assets/tab-icons/trophy-active.png'), inactive: require('./assets/tab-icons/trophy-inactive.png') },
   rewards: { active: require('./assets/tab-icons/trophy-active.png'), inactive: require('./assets/tab-icons/trophy-inactive.png') },
+  confidential: { active: require('./assets/tab-icons/agentic-active.png'), inactive: require('./assets/tab-icons/agentic-inactive.png') },
   agentic: { active: require('./assets/tab-icons/agentic-active.png'), inactive: require('./assets/tab-icons/agentic-inactive.png') },
   profile: { active: require('./assets/tab-icons/profile-active.png'), inactive: require('./assets/tab-icons/profile-inactive.png') },
 };
