@@ -82,6 +82,7 @@ export default function ConfidentialScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('overview');
   const [disputeInput, setDisputeInput] = useState('');
   const [sealedAuctionResult, setSealedAuctionResult] = useState(null);
+  const [disputeResult, setDisputeResult] = useState(null);
 
   const flrPrice = prices.FLR?.price || 0.006;
 
@@ -101,7 +102,7 @@ export default function ConfidentialScreen({ navigation }) {
   const resolveDispute = (disputeId) => {
     // Simulate TEE arbitration
     const hash = '0x' + Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('');
-    setSealedAuctionResult({
+    setDisputeResult({
       disputeId,
       verdict: 'Refund issued to buyer — item not as described',
       attestation: hash,
@@ -163,7 +164,7 @@ export default function ConfidentialScreen({ navigation }) {
               onValueChange={(v) => {
                 setTeeEnabled(v);
                 if (v) setTeeStatus(1);
-                else { setAttestation(null); setTeeStatus(null); setSealedAuctionResult(null); }
+                else { setAttestation(null); setTeeStatus(null); setSealedAuctionResult(null); setDisputeResult(null); }
               }}
               trackColor={{ false: Colors.border, true: Colors.primary }}
               thumbColor="#FFF"
@@ -187,7 +188,7 @@ export default function ConfidentialScreen({ navigation }) {
               {attestation && (
                 <View style={styles.attestResult}>
                   <Text style={styles.attestLabel}>RA-TLS Attestation Hash</Text>
-                  <Text style={styles.attestHash} selectable>{attestation.hash.slice(0, 24)}...{attestation.hash.slice(-12)}</Text>
+                  <Text style={styles.attestHashFull} selectable>{attestation.hash}</Text>
                   <Text style={styles.attestTime}>Verified: {new Date(attestation.timestamp).toLocaleString()}</Text>
                   <Text style={styles.attestStatus}>Status: PRODUCTION ✅</Text>
                 </View>
@@ -321,14 +322,14 @@ export default function ConfidentialScreen({ navigation }) {
             ))}
 
             {/* Resolution result */}
-            {sealedAuctionResult && sealedAuctionResult.disputeId && (
+            {disputeResult && (
               <View style={styles.resultCard}>
                 <Text style={styles.resultTitle}>⚖️ Arbitration Complete</Text>
-                <Text style={styles.resultVerdict}>{sealedAuctionResult.verdict}</Text>
-                <Text style={styles.resultConfidence}>AI Confidence: {sealedAuctionResult.confidence}%</Text>
-                <Text style={styles.resultLabel}>Attestation Hash</Text>
-                <Text style={styles.resultHash} selectable>{sealedAuctionResult.attestation.slice(0, 24)}...{sealedAuctionResult.attestation.slice(-12)}</Text>
-                <Text style={styles.resultTime}>Verified: {new Date(sealedAuctionResult.timestamp).toLocaleString()}</Text>
+                <Text style={styles.resultVerdict}>{disputeResult.verdict}</Text>
+                <Text style={styles.resultConfidence}>AI Confidence: {disputeResult.confidence}%</Text>
+                <Text style={styles.resultLabel}>Attestation Hash (full — long press to copy)</Text>
+                <Text style={styles.resultHashFull} selectable>{disputeResult.attestation}</Text>
+                <Text style={styles.resultTime}>Verified: {new Date(disputeResult.timestamp).toLocaleString()}</Text>
               </View>
             )}
           </>
@@ -385,7 +386,7 @@ export default function ConfidentialScreen({ navigation }) {
                   <Text style={styles.resultWinningBid}>Winning Bid: {sealedAuctionResult.winningBid.toLocaleString()} FLR (≈ ${(sealedAuctionResult.winningBid * flrPrice).toFixed(2)})</Text>
                   <Text style={styles.resultTotalBids}>{sealedAuctionResult.totalBids} bids collected — all sealed until reveal</Text>
                   <Text style={styles.resultLabel}>Attestation Hash</Text>
-                  <Text style={styles.resultHash} selectable>{sealedAuctionResult.attestation.slice(0, 24)}...{sealedAuctionResult.attestation.slice(-12)}</Text>
+                  <Text style={styles.resultHashFull} selectable>{sealedAuctionResult.attestation}</Text>
                   <Text style={styles.resultTime}>Verified: {new Date(sealedAuctionResult.timestamp).toLocaleString()}</Text>
                 </View>
               )}
@@ -475,6 +476,7 @@ const styles = StyleSheet.create({
   attestResult: { backgroundColor: Colors.background, borderRadius: 12, padding: 12, marginTop: 8 },
   attestLabel: { fontSize: 11, color: Colors.textMuted, fontWeight: '600', marginBottom: 4 },
   attestHash: { fontSize: 12, color: Colors.text, fontFamily: 'monospace', marginBottom: 4 },
+  attestHashFull: { fontSize: 10, color: Colors.text, fontFamily: 'monospace', marginBottom: 4, wordBreak: 'break-all' },
   attestTime: { fontSize: 11, color: Colors.success, marginBottom: 4 },
   attestStatus: { fontSize: 12, fontWeight: '700', color: Colors.success },
   // Sub-tabs
@@ -541,6 +543,7 @@ const styles = StyleSheet.create({
   resultTotalBids: { fontSize: 12, color: Colors.textMuted, marginBottom: 12 },
   resultLabel: { fontSize: 11, color: Colors.textMuted, fontWeight: '600', marginBottom: 4 },
   resultHash: { fontSize: 12, color: Colors.text, fontFamily: 'monospace', marginBottom: 4 },
+  resultHashFull: { fontSize: 9, color: Colors.text, fontFamily: 'monospace', marginBottom: 4, wordBreak: 'break-all' },
   resultTime: { fontSize: 11, color: Colors.success },
   // Sealed auction
   sealedCard: { backgroundColor: Colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
