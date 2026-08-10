@@ -1,10 +1,10 @@
 import React from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
-import { Colors } from '../constants/colors';
-import { useLivePrices } from '../services/LivePriceService';
-import { CRYPTO_HOLDINGS, computePortfolioTotal, computePortfolioChange, getAssetUSDValue } from '../constants/holdings';
-import { FLARE_NETWORK_NAME } from '../appConfig';
-import ScreenHeader from '../components/ScreenHeader';
+import { Colors } from '../../constants/colors';
+import { useLivePrices } from '../../services/LivePriceService';
+import { CRYPTO_HOLDINGS, computePortfolioTotal, computePortfolioChange, getAssetUSDValue } from '../../constants/holdings';
+import { FLARE_NETWORK_NAME } from '../../appConfig';
+import ScreenHeader from '../../components/ScreenHeader';
 
 export default function AgenticScreen({ navigation }) {
   const { prices, source } = useLivePrices();

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
-import { Colors } from '../constants/colors';
-import ScreenHeader from '../components/ScreenHeader';
+import { Colors } from '../../constants/colors';
+import ScreenHeader from '../../components/ScreenHeader';
 
 const DEMO_CARDS = [
   { id: 1, type: 'Sunkist', number: '4242', balance: 2500, spent: 340, limit: 5000, frozen: false, color: Colors.primary },

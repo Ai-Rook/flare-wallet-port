@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Clipboard } from 'react-native';
-import { Colors } from '../constants/colors';
-import { DEMO_WALLET_ADDRESS } from '../appConfig';
-import ScreenHeader from '../components/ScreenHeader';
+import { Colors } from '../../constants/colors';
+import { DEMO_WALLET_ADDRESS } from '../../appConfig';
+import ScreenHeader from '../../components/ScreenHeader';
 
 export default function ReceiveScreen({ navigation }) {
   const copyAddress = () => {

@@ -1,8 +1,8 @@
 import React from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Alert } from 'react-native';
-import { Colors } from '../constants/colors';
-import { FLARE_NETWORK_NAME, FLARE_CHAIN_ID, FLARE_RPC, FLARE_EXPLORER, DEMO_WALLET_ADDRESS } from '../appConfig';
-import ScreenHeader from '../components/ScreenHeader';
+import { Colors } from '../../constants/colors';
+import { FLARE_NETWORK_NAME, FLARE_CHAIN_ID, FLARE_RPC, FLARE_EXPLORER, DEMO_WALLET_ADDRESS } from '../../appConfig';
+import ScreenHeader from '../../components/ScreenHeader';
 
 export default function ProfileScreen({ navigation }) {
   const settings = [

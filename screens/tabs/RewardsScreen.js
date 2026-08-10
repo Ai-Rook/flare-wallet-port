@@ -1,8 +1,8 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet, SafeAreaView } from 'react-native';
-import { Colors } from '../constants/colors';
-import { useLivePrices } from '../services/LivePriceService';
-import ScreenHeader from '../components/ScreenHeader';
+import { Colors } from '../../constants/colors';
+import { useLivePrices } from '../../services/LivePriceService';
+import ScreenHeader from '../../components/ScreenHeader';
 
 export default function RewardsScreen({ navigation }) {
   const { prices } = useLivePrices();

@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet, RefreshControl, SafeAreaView } from 'react-native';
-import { Colors } from '../constants/colors';
-import { useLivePrices } from '../services/LivePriceService';
-import { CRYPTO_HOLDINGS, FIAT_HOLDINGS, computePortfolioTotal, computePortfolioChange, getAssetUSDValue } from '../constants/holdings';
-import { DEMO_WALLET_ADDRESS, FLARE_EXPLORER, FLARE_NETWORK_NAME } from '../appConfig';
-import ScreenHeader from '../components/ScreenHeader';
+import { Colors } from '../../constants/colors';
+import { useLivePrices } from '../../services/LivePriceService';
+import { CRYPTO_HOLDINGS, FIAT_HOLDINGS, computePortfolioTotal, computePortfolioChange, getAssetUSDValue } from '../../constants/holdings';
+import { DEMO_WALLET_ADDRESS, FLARE_EXPLORER, FLARE_NETWORK_NAME } from '../../appConfig';
+import ScreenHeader from '../../components/ScreenHeader';
 
 export default function WalletScreen({ navigation }) {
   const { prices, lastUpdated, source, refresh } = useLivePrices();

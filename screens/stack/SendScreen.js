@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { ScrollView, View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert } from 'react-native';
-import { Colors } from '../constants/colors';
-import { CRYPTO_HOLDINGS } from '../constants/holdings';
-import { useLivePrices } from '../services/LivePriceService';
-import { DEMO_WALLET_ADDRESS, FLARE_EXPLORER } from '../appConfig';
-import ScreenHeader from '../components/ScreenHeader';
+import { Colors } from '../../constants/colors';
+import { CRYPTO_HOLDINGS } from '../../constants/holdings';
+import { useLivePrices } from '../../services/LivePriceService';
+import { DEMO_WALLET_ADDRESS, FLARE_EXPLORER } from '../../appConfig';
+import ScreenHeader from '../../components/ScreenHeader';
 
 export default function SendScreen({ navigation }) {
   const { prices } = useLivePrices();
